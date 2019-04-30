@@ -1,7 +1,7 @@
 require 'numo/narray'
 
 class MatMul
-  attr_accessor :params
+  attr_accessor :params, :grads
 
   def initialize(w)
     @params = [w]

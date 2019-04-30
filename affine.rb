@@ -1,7 +1,7 @@
 require 'numo/narray'
 
 class Affine
-  attr_accessor :params
+  attr_accessor :params, :grads
 
   def initialize(w, b)
     @params = [w, b]

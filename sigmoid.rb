@@ -1,7 +1,7 @@
 require 'numo/narray'
 
 class Sigmoid
-  attr_accessor :params
+  attr_accessor :params, :grads
 
   def initialize
     @params = []
