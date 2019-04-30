@@ -12,6 +12,10 @@ def softmax(x)
   end
 end
 
+def argmax(x)
+  x.max_index(axis: 1) % x.shape[1]
+end
+
 def cross_entropy_error(y, t)
   if y.ndim == 1
     t = t.reshape(1, t.size)
@@ -19,7 +23,7 @@ def cross_entropy_error(y, t)
   end
 
   if t.size == y.size
-    t = t.max_index(axis: 1)
+    t = argmax(t)
   end
 
   batch_size = y.shape[0]
@@ -40,7 +44,7 @@ class SoftmaxWithLoss
     @y = softmax(x)
 
     if @t.size == @y.size
-      @t = @t.max_index(axis: 1)
+      @t = argmax(@t)
     end
 
     loss = cross_entropy_error(@y, @t)

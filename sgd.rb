@@ -4,7 +4,7 @@ class SGD
   end
 
   def update(params, grads)
-    for i in [0...len(params)] do
+    for i in (0...params.length) do
       params[i] -= @lr * grads[i]
     end
   end
