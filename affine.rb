@@ -22,8 +22,8 @@ class Affine
     dw = @x.transpose.dot(dout)
     db = dout.sum(0)
 
-    @grads[0] = dw
-    @grads[1] = db
+    @grads[0][] = dw
+    @grads[1][] = db
 
     dx
   end
