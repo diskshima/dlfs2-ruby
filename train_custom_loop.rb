@@ -6,7 +6,7 @@ require_relative 'two_layer_net'
 max_epoch = 300
 batch_size = 30
 hidden_size = 10
-learning_rate = 1.0
+learning_rate = 0.01
 
 x, t = load_data
 model = TwoLayerNet.new(2, hidden_size, 3)
@@ -36,7 +36,7 @@ max_epoch.times do |epoch|
 
     if (iters + 1) % 10 == 0
       avg_loss = total_loss / loss_count
-      printf("| epoch %d | iter %d / %d | loss %.2f\n",
+      printf("| epoch %d | iter %d / %d | loss %.8f\n",
              epoch + 1, iters + 1, max_iters, avg_loss)
       loss_list.append(avg_loss)
       total_loss = 0
