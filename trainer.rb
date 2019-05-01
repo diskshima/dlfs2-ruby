@@ -65,7 +65,7 @@ class Trainer
     total_loss = 0
     loss_count = 0
 
-    start_time = Time.now.to_i
+    start_time = Time.now
     max_epoch.times do |epoch|
       idx = (0...data_size).to_a.shuffle
       x = x[idx, true]
@@ -87,9 +87,9 @@ class Trainer
 
         if eval_interval && (iters % eval_interval) == 0
           avg_loss = total_loss / loss_count
-          elapsed_time = Time.now.to_i - start_time
-          printf("| epoch %d | iter %d / %d | time %d[s] | loss %.8f\n",
-                 epoch + 1, iters + 1, max_iters, elapsed_time, avg_loss)
+          elapsed_time = Time.now - start_time
+          printf("| epoch %d | iter %d / %d | time %d[ms] | loss %.8f\n",
+                 epoch + 1, iters + 1, max_iters, elapsed_time * 1_000, avg_loss)
           @loss_list.append(avg_loss)
           total_loss = 0
           loss_count = 0
