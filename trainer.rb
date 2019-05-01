@@ -20,7 +20,7 @@ def remove_duplicates(params, grads)
     param_count = params.length
 
     param_count.times do |i|
-      (i...param_count).each do |j|
+      (i+1...param_count).each do |j|
         if params[i] == params[j]
           grads[i] += grads[j]
           found = true
@@ -77,9 +77,7 @@ class Trainer
 
         loss = model.forward(batch_x, batch_t)
         model.backward()
-        # params, grads = remove_duplicates(model.params, model.grads)
-        params = model.params
-        grads = model.grads
+        params, grads = remove_duplicates(model.params, model.grads)
 
         clip_grads(grads, max_grad) if max_grad
 
