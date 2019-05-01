@@ -8,7 +8,7 @@ require_relative 'softmax_with_loss'
 max_epoch = 300
 batch_size = 30
 hidden_size = 10
-learning_rate = 0.01
+learning_rate = 1.0
 
 x, t = load_data
 x_orig = x

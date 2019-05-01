@@ -16,6 +16,12 @@ def argmax(x)
   x.max_index(axis: 1) % x.shape[1]
 end
 
+def to_full_index(t, cls_num)
+  t.to_a.each_with_index.map do |val, index|
+    cls_num * index + val
+  end
+end
+
 def cross_entropy_error(y, t)
   if y.ndim == 1
     t = t.reshape(1, t.size)
@@ -28,7 +34,8 @@ def cross_entropy_error(y, t)
 
   batch_size = y.shape[0]
 
-  -Numo::DFloat::Math.log(y[true, t] + 1e-7).sum / batch_size
+  idxs = to_full_index(t, y.shape[1])
+  -Numo::DFloat::Math.log(y[idxs] + 1e-7).sum / batch_size
 end
 
 class SoftmaxWithLoss
@@ -55,7 +62,8 @@ class SoftmaxWithLoss
     batch_size = @t.shape[0]
 
     dx = @y.copy
-    dx[true, @t] -= 1
+    idxs = to_full_index(@t, @y.shape[1])
+    dx[idxs] -= 1
     dx *= dout
     dx /= batch_size
     dx
