@@ -6,9 +6,9 @@ class TwoLayerNet
   attr_accessor :params, :grads
 
   def initialize(input_size, hidden_size, output_size)
-    w1 = 0.01 * Numo::DFloat.new(input_size, hidden_size).rand
+    w1 = 0.01 * Numo::DFloat.new(input_size, hidden_size).rand_norm
     b1 = Numo::DFloat.zeros(hidden_size)
-    w2 = 0.01 * Numo::DFloat.new(hidden_size, output_size).rand
+    w2 = 0.01 * Numo::DFloat.new(hidden_size, output_size).rand_norm
     b2 = Numo::DFloat.zeros(output_size)
 
     @layers = [
