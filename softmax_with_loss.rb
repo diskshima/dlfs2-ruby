@@ -4,7 +4,7 @@ def softmax(x)
   if ndim == 2
     x2 = x - x.max(axis: 1).expand_dims(1)
     exp = Numo::DFloat::Math.exp(x2)
-    return x /= exp.sum(axis: 1).expand_dims(1)
+    return exp / exp.sum(axis: 1).expand_dims(1)
   elsif ndim == 1
     x2 = x - x.max
     exp = Numo::DFloat::Math.exp(x2)
