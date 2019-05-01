@@ -53,7 +53,7 @@ end
 gp_loss = Numo::Gnuplot.new
 gp_loss.set(terminal: 'png')
 gp_loss.set(output: 'loss_graph.png')
-gp_loss.plot(loss_list)
+gp_loss.plot([loss_list, w: 'lines'])
 
 gp_cls = Numo::Gnuplot.new
 gp_cls.set(terminal: 'png')
