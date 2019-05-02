@@ -1,9 +1,9 @@
 require 'numo/narray'
 require 'numo/gnuplot'
-require_relative 'sgd'
-require_relative 'spiral'
+require_relative '../common/layers'
+require_relative '../common/optimizer'
+require_relative '../dataset/spiral'
 require_relative 'two_layer_net'
-require_relative 'softmax_with_loss'
 
 max_epoch = 300
 batch_size = 30
