@@ -42,7 +42,7 @@ end
 # @param corpus [Array-like] Corpus (an array of word IDs).
 # @param vocab_size [Integer] Size of vocabulary.
 # @param window_size [Integer] Window size. Window size = 1 means it consider 1 word before and after the target word as its context.
-# @return [Array<Array<Integer>>] Co-occurence matrix.
+# @return [Numo::UInt32] Co-occurence matrix.
 def create_co_matrix(corpus, vocab_size, window_size: 1)
   corpus_size = corpus.length
   co_matrix = Numo::UInt32.zeros(vocab_size, vocab_size)
@@ -67,12 +67,42 @@ def create_co_matrix(corpus, vocab_size, window_size: 1)
   co_matrix
 end
 
+# Calculate the Positive Pointwise Mutual Information (PPMI)
+#
+# @param c [Numo::UInt32] Co-occurence matrix.
+# @param verbose [Boolean] Verbose output.
+# @param eps [Float] Epsilon to prevent divide by zero errors.
+# @return [Numo::DFloat] PPMI matrix
+def ppmi(c, verbose: false, eps: 1e-8)
+  ppmi = Numo::DFloat.zeros(c.shape)
+  n = c.sum
+  s = c.sum(axis: 1)
+  total = c.size
+  count = 0
+
+  c.shape[0].times do |i|
+    c.shape[1].times do |j|
+      pmi = Math.log2(c[i,j] * n / (s[i] * s[j] + eps))
+      ppmi[i, j] = [0.0, pmi].max
+
+      if verbose
+        count += 1
+        if count % (total / 100) == 0
+          printf('%.1f% done', 100 * count / total)
+        end
+      end
+    end
+  end
+
+  ppmi
+end
+
 # Print most similar words.
 #
 # @param query [String] Query word.
 # @param word_to_id [Hash<String, Integer>] Word to ID.
 # @param id_to_word [Hash<Integer, String>] ID to word.
-# @param word_matrix [Array<Array<Integer>>] Word matrix each inner array will represent the word vector for the index.
+# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent the word vector for the index.
 # @param top [Integer] Count of words to return (sorted by similarity).
 def most_similar(query, word_to_id, id_to_word, word_matrix, top: 5)
   unless word_to_id.include?(query)
