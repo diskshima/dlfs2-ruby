@@ -1,6 +1,4 @@
-require_relative 'affine'
-require_relative 'sigmoid'
-require_relative 'softmax_with_loss'
+require_relative '../common/layers'
 
 class TwoLayerNet
   attr_accessor :params, :grads

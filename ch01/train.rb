@@ -1,6 +1,6 @@
-require_relative 'sgd'
-require_relative 'trainer'
-require_relative 'spiral'
+require_relative '../common/optimizer'
+require_relative '../common/trainer'
+require_relative '../dataset/spiral'
 require_relative 'two_layer_net'
 
 max_epoch = 300
