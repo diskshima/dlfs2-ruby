@@ -67,6 +67,45 @@ def create_co_matrix(corpus, vocab_size, window_size: 1)
   co_matrix
 end
 
+# Print most similar words.
+#
+# @param query [String] Query word.
+# @param word_to_id [Hash<String, Integer>] Word to ID.
+# @param id_to_word [Hash<Integer, String>] ID to word.
+# @param word_matrix [Array<Array<Integer>>] Word matrix each inner array will represent the word vector for the index.
+# @param top [Integer] Count of words to return (sorted by similarity).
+def most_similar(query, word_to_id, id_to_word, word_matrix, top: 5)
+  unless word_to_id.include?(query)
+    printf("%s not found\n", query)
+    return
+  end
+
+  puts '[Query] ' + query
+
+  query_id = word_to_id[query]
+  query_vec = word_matrix[query_id, true]
+
+  # similarity = word_matrix.map { |vec| cos_similarity(vec, query_vec) }
+
+  similarity = []
+
+  word_matrix.shape[0].times do |idx|
+    vec = word_matrix[idx, true]
+    similarity[idx] = cos_similarity(vec, query_vec)
+  end
+
+  sorted_indexes = similarity.map.with_index.sort.map(&:last).reverse
+
+  count = 0
+  sorted_indexes.each do |idx|
+    next if idx == query_id
+
+    printf(" %s: %s\n", id_to_word[idx], similarity[idx])
+    count += 1
+    break if count == top
+  end
+end
+
 def clip_grads(grads, max_norm)
   total_norm = grads.reduce(0) do |total, grad|
     total + (grad ** 2).sum
