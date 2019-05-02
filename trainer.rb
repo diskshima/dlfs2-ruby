@@ -105,14 +105,14 @@ class Trainer
     eval_interval = @eval_interval
     loss_list = @loss_list
 
-    g = Numo::gnuplot do
+    Numo::gnuplot do
       set(yrange: ylim) if ylim
       set(terminal: 'png')
       set(output: 'loss_graph.png')
       set(key: 'box right top')
       set(xlabel: "iterations (x#{eval_interval})")
       set(ylabel: 'loss')
-      plot(x, loss_list, w: 'lines', lw: 3, title: 'train')
+      plot(x, loss_list, w: 'lines', lw: 2, title: 'train')
     end
   end
 end
