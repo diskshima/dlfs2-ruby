@@ -3,6 +3,8 @@ GEM
   specs:
     byebug (11.0.1)
     numo-gnuplot (0.2.4)
+    numo-linalg (0.1.4)
+      numo-narray (>= 0.9.0.7)
     numo-narray (0.9.1.4)
     yard (0.9.19)
 
@@ -12,6 +14,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   numo-gnuplot
+  numo-linalg
   numo-narray
   yard
 

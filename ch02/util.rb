@@ -1,3 +1,7 @@
+# Prints word matrix
+#
+# @param m [Numo::UInt32] Word matrix.
+# @param id_to_word [Hash<Integer, String>] ID to word.
 def print_matrix(m, id_to_word)
   max_word_len = id_to_word.values.max_by(&:length).length
 
