@@ -1,3 +1,5 @@
 doc/
+dataset/*.bin
+dataset/*.txt
 
 *.png
