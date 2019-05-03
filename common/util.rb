@@ -144,6 +144,8 @@ end
 #
 # @param a [Numo::NArray] Input matrix
 # @param k [Integer] Number of vectors to calculate.
+# @return [Array<Numo::DFloat, Numo::DFloat, Numo::DFloat>]
+#   Sigma (singular values), left-singular vector, right-singular vector transposed.
 def svd(a, k)
   n_rows, = a.shape
 
