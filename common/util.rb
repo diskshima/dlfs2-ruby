@@ -1,4 +1,6 @@
 require 'numo/narray'
+require 'numo/linalg/linalg'
+Numo::Linalg::Loader.load_openblas '/usr/local/opt/openblas/lib'
 
 # Create corpus and word-ID hash.
 #
@@ -88,7 +90,7 @@ def ppmi(c, verbose: false, eps: 1e-8)
       if verbose
         count += 1
         if count % (total / 100) == 0
-          printf('%.1f% done', 100 * count / total)
+          printf("%.1f%% done\n", 100 * count / total)
         end
       end
     end
@@ -134,6 +136,27 @@ def most_similar(query, word_to_id, id_to_word, word_matrix, top: 5)
     count += 1
     break if count == top
   end
+end
+
+# Runs a Truncated SVD on the input matrix.
+# Taken from
+#   https://yoshoku.hatenablog.com/entry/2019/01/06/193347
+#
+# @param a [Numo::NArray] Input matrix
+# @param k [Integer] Number of vectors to calculate.
+def svd(a, k)
+  n_rows, = a.shape
+
+  b = a.dot(a.transpose)
+
+  vals_range = (n_rows - k)...n_rows
+  evals, evecs = Numo::Linalg.eigh(b, vals_range: vals_range)
+
+  s = Numo::NMath.sqrt(evals.reverse.dup)
+  u = evecs.reverse(1).dup
+  vt = (1.0 / s).diag.dot(u.transpose).dot(a)
+
+  [s, u, vt]
 end
 
 # Applies gradient clipping.

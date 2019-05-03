@@ -71,7 +71,7 @@ end
 # Load corpus, word-ID mappings
 #
 # @param data_type [Symbol] Data type to load. One of :train, :test or :valid/:val.
-# @return [Array<Numo::NArray, Hash<String, Integer>, Hash<Integer, String>>] Corpus (text converted to IDs), word to ID, ID to word.
+# @return [Array<Numo::UInt32, Hash<String, Integer>, Hash<Integer, String>>] Corpus (text converted to IDs), word to ID, ID to word.
 def load_data(data_type=:train)
   data_type = :valid if data_type == :val
 
@@ -93,7 +93,7 @@ def load_data(data_type=:train)
   words = File.read(file_path).gsub("\n", '<eos>').strip.split
   word_ids = words.map { |w| word_to_id[w] }
   corpus = Numo::UInt32.zeros(word_ids.length)
-                       .append(word_ids)
+  corpus = word_ids
 
   File.open(save_path, 'wb') do |f|
     Marshal.dump(corpus, f)
