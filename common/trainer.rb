@@ -1,5 +1,5 @@
+require 'gnuplot'
 require 'numo/narray'
-require 'numo/gnuplot'
 require_relative 'util'
 require_relative 'layers'
 
@@ -94,14 +94,20 @@ class Trainer
     eval_interval = @eval_interval
     loss_list = @loss_list
 
-    Numo::gnuplot do
-      set(yrange: ylim) if ylim
-      set(terminal: 'png')
-      set(output: 'loss_graph.png')
-      set(key: 'box right top')
-      set(xlabel: "iterations (x#{eval_interval})")
-      set(ylabel: 'loss')
-      plot(x, loss_list, w: 'lines', lw: 2, title: 'train')
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new(gp) do |plot|
+
+        plot.set(:yrange, ylim) if ylim
+        plot.set(:key, 'box right top')
+        plot.xlabel("iterations (x#{eval_interval})")
+        plot.ylabel('loss')
+
+        plot.data << Gnuplot::DataSet.new([x, loss_list]) do |ds|
+          ds.title = 'train'
+          ds.with = 'lines'
+          ds.linewidth = 2
+        end
+      end
     end
   end
 end

@@ -1,4 +1,4 @@
-require 'numo/gnuplot'
+require 'gnuplot'
 require 'numo/linalg/linalg'
 Numo::Linalg::Loader.load_openblas '/usr/local/opt/openblas/lib'
 require_relative '../common/util'
@@ -21,12 +21,15 @@ print_matrix(w, id_to_word)
 puts('SVD')
 print_matrix(u, id_to_word)
 
-Numo::gnuplot do
-  set(terminal: 'png')
-  set(output: 'svd.png')
-  word_to_id.each do |word, word_id|
-    puts "#{word}: #{u[word_id, 0]},#{u[word_id, 1]}"
-    set(label: word, at: "#{u[word_id, 0]},#{u[word_id, 1]} center")
+Gnuplot.open do |gp|
+  Gnuplot::Plot.new(gp) do |plot|
+    word_to_id.each do |word, word_id|
+      puts "#{word}: #{u[word_id, 0]},#{u[word_id, 1]}"
+      plot.set(:label, "\"#{word}\" at #{u[word_id, 0]},#{u[word_id, 1]} center")
+    end
+    plot.data << Gnuplot::DataSet.new([u[true, 0].to_a, u[true, 1].to_a]) do |ds|
+      ds.title = 'Word'
+      ds.with = 'points pt 2'
+    end
   end
-  plot([u[true, 0], u[true, 1], w: 'points', pt: 5])
 end

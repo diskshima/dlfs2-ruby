@@ -1,5 +1,5 @@
+require 'gnuplot'
 require 'numo/narray'
-require 'numo/gnuplot'
 require_relative '../common/layers'
 require_relative '../common/optimizer'
 require_relative '../dataset/spiral'
@@ -50,14 +50,13 @@ max_epoch.times do |epoch|
 end
 
 # Plot loss history
-gp_loss = Numo::Gnuplot.new
-gp_loss.set(terminal: 'png')
-gp_loss.set(output: 'loss_graph.png')
-gp_loss.plot([loss_list, w: 'lines'])
-
-gp_cls = Numo::Gnuplot.new
-gp_cls.set(terminal: 'png')
-gp_cls.set(output: 'classification.png')
+Gnuplot.open do |gp|
+  Gnuplot::Plot.new(gp) do |plot|
+    plot.data << Gnuplot::DataSet.new(loss_list) do |ds|
+      ds.with = 'lines'
+    end
+  end
+end
 
 cls_num = 3
 h = 0.05
@@ -76,23 +75,39 @@ x_in.inplace * h
 score = model.predict(x_in)
 predict_cls = argmax(score)
 
-plots = []
 
-cls_num.times do |cls|
-  idx = []
-  predict_cls.eq(cls).each_with_index { |v, i| idx.push(v == 1 ? i : nil) }
-  idx = idx.select { |v| !v.nil? }
-  plots.append([x_in[idx, 0], x_in[idx, 1], w: 'points', pt: cls + 4])
+Gnuplot.open do |gp|
+  Gnuplot::Plot.new(gp) do |plot|
+    plots = []
+
+    cls_num.times do |cls|
+      idx = []
+      predict_cls.eq(cls).each_with_index { |v, i| idx.push(v == 1 ? i : nil) }
+      idx = idx.select { |v| !v.nil? }
+
+      ds = Gnuplot::DataSet.new([x_in[idx, 0].to_a, x_in[idx, 1].to_a]) do |ds|
+        ds.with = "points pt #{cls + 3}"
+      end
+
+      plots.append(ds)
+
+      # Plot data points
+      n = 100
+      cls_num.times do |i|
+        start_idx = i * n
+        end_idx = (i + 1) * n
+
+        ds = Gnuplot::DataSet.new(
+          [x_orig[start_idx...end_idx, 0].to_a, x_orig[start_idx...end_idx, 1].to_a]
+        ) do |ds|
+          ds.with = "points pt #{i + 1}"
+          ds.linewidth = 3
+        end
+
+        plots.append(ds)
+      end
+    end
+
+    plot.data = plots
+  end
 end
-
-# Plot data points
-n = 100
-cls_num.times do |i|
-  start_idx = i * n
-  end_idx = (i + 1) * n
-
-  plots.append([x_orig[start_idx...end_idx, 0], x_orig[start_idx...end_idx, 1],
-                w: 'points', pt: i + 1])
-end
-
-gp_cls.plot(*plots)

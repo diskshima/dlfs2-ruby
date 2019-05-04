@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     byebug (11.0.1)
-    numo-gnuplot (0.2.4)
+    gnuplot (2.6.2)
     numo-linalg (0.1.4)
       numo-narray (>= 0.9.0.7)
     numo-narray (0.9.1.4)
@@ -13,7 +13,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
-  numo-gnuplot
+  gnuplot
   numo-linalg
   numo-narray
   yard
