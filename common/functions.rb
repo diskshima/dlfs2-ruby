@@ -39,3 +39,9 @@ def to_full_index(t, cls_num)
     cls_num * index + val
   end
 end
+
+def get_at_dim_index(x, dim_no, idx)
+  ind = Array.new(x.ndim, true)
+  ind[dim_no] = idx
+  x[*ind]
+end

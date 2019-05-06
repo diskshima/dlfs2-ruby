@@ -1,7 +1,8 @@
 require 'gnuplot'
 require 'numo/narray'
-require_relative 'util'
+require_relative 'functions'
 require_relative 'layers'
+require_relative 'util'
 
 def remove_duplicates(params, grads)
   loop do
@@ -45,7 +46,7 @@ class Trainer
     @current_epoch = 0
   end
 
-  def fit(x, t, max_epoch: 0, batch_size: 32, max_grad: nil, eval_interval: 20)
+  def fit(x, t, max_epoch = 0, batch_size = 32, max_grad: nil, eval_interval: 20)
     data_size = x.shape[0]
     max_iters = data_size / batch_size
     @eval_interval = eval_interval
@@ -57,12 +58,13 @@ class Trainer
     start_time = Time.now
     max_epoch.times do |epoch|
       idx = (0...data_size).to_a.shuffle
-      x = x[idx, true]
-      t = t[idx, true]
+      x = get_at_dim_index(x, 0, idx)
+      t = get_at_dim_index(t, 0, idx)
 
       max_iters.times do |iters|
-        batch_x = x[iters * batch_size...(iters+1) * batch_size, true]
-        batch_t = t[iters * batch_size...(iters+1) * batch_size, true]
+        batches = iters * batch_size...(iters+1) * batch_size
+        batch_x = get_at_dim_index(x, 0, batches)
+        batch_t = get_at_dim_index(t, 0, batches)
 
         loss = model.forward(batch_x, batch_t)
         model.backward()
