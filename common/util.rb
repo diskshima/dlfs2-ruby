@@ -39,6 +39,32 @@ def cos_similarity(x, y, eps: 1e-8)
   nx.dot(ny)
 end
 
+# Convert corpus into one-hot encodings.
+#
+# @param corpus [Array-like] Corpus (an array of word IDs).
+# @param vocab_size [Integer] Size of vocabulary.
+# @return [Numo::UInt32] The corpus one-hot encoded (2 or 3 dimensions).
+def convert_one_hot(corpus, vocab_size)
+  n = corpus.shape[0]
+
+  if corpus.ndim == 1
+    one_hot = Numo::UInt32.zeros(n, vocab_size)
+    corpus.each_with_index do |word_id, idx|
+      one_hot[idx, word_id] = 1
+    end
+  elsif corpus.ndim == 2
+    c = corpus.shape[1]
+    one_hot = Numo::UInt32.zeros(n, c, vocab_size)
+    corpus.each_with_index do |word_ids, idx_0|
+      word_ids.each_with_index do |word_id, idx_1|
+        one_host[idx_0, idx_1, word_id] = 1
+      end
+    end
+  end
+
+  one_hot
+end
+
 # Create a co-occurence matrix
 #
 # @param corpus [Array-like] Corpus (an array of word IDs).
@@ -71,7 +97,7 @@ end
 
 # Create context from the passed in corpus.
 #
-# @param corpus [Array<Integer>] Corpus.
+# @param corpus [Array-like] Corpus (an array of word IDs).
 # @param window_size [Integer] Window size of the corpus.
 # @return [Array<Numo::UInt32>] Array with the first element being an array of
 #   contexts and the second element being an array of the corresponding targets.
