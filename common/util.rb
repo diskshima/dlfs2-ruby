@@ -69,6 +69,28 @@ def create_co_matrix(corpus, vocab_size, window_size: 1)
   co_matrix
 end
 
+# Create context from the passed in corpus.
+#
+# @param corpus [Array<Integer>] Corpus.
+# @param window_size [Integer] Window size of the corpus.
+# @return [Array<Numo::UInt32>] Array with the first element being an array of
+#   contexts and the second element being an array of the corresponding targets.
+def create_contexts_target(corpus, window_size: 1)
+  target = corpus[window_size...-window_size]
+  contexts = []
+
+  (window_size...corpus.length-window_size).each do |idx|
+    cs = []
+    (-window_size..window_size).each do |t|
+      next if t == 0
+      cs.append(corpus[idx + t])
+    end
+    contexts.append(cs)
+  end
+
+  [Numo::UInt32[*contexts], Numo::UInt32[*target]]
+end
+
 # Calculate the Positive Pointwise Mutual Information (PPMI)
 #
 # @param c [Numo::UInt32] Co-occurence matrix.
