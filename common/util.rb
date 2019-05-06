@@ -55,9 +55,11 @@ def convert_one_hot(corpus, vocab_size)
   elsif corpus.ndim == 2
     c = corpus.shape[1]
     one_hot = Numo::UInt32.zeros(n, c, vocab_size)
-    corpus.each_with_index do |word_ids, idx_0|
+
+    n.times do |idx_0|
+      word_ids = corpus[idx_0, true]
       word_ids.each_with_index do |word_id, idx_1|
-        one_host[idx_0, idx_1, word_id] = 1
+        one_hot[idx_0, idx_1, word_id] = 1
       end
     end
   end

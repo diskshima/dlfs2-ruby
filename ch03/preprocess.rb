@@ -11,7 +11,7 @@ p contexts
 p target
 
 vocab_size = word_to_id.length
-contexts = convert_one_hot(corpus, vocab_size)
+contexts = convert_one_hot(contexts, vocab_size)
 target = convert_one_hot(target, vocab_size)
 
 p contexts
