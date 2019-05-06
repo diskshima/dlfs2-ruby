@@ -69,9 +69,8 @@ side_points.each do |i|
   end
 end
 
-x_in = Numo::DFloat.new(side_points.length**2, 2).seq
-x_in[] = grid
-x_in.inplace * h
+x_in = Numo::DFloat[*grid]
+x_in *= h
 score = model.predict(x_in)
 predict_cls = argmax(score)
 
