@@ -106,3 +106,27 @@ class SoftmaxWithLoss
     dx
   end
 end
+
+class Embedding
+  attr_accessor :params, :grads
+
+  def initialize(w)
+    @params = [w]
+    @grads = [Numo::DFloat.zeros(w.shape)]
+    @idx = nil
+  end
+
+  def forward(idx)
+    w, = @params
+    @idx = idx
+    out = get_at_dim_index(w, 0, idx)
+    out
+  end
+
+  def backward(dout)
+    dw, = @grads
+    dw[] = 0
+    get_at_dim_index(w, 0, @idx).inplace + dout
+    nil
+  end
+end
