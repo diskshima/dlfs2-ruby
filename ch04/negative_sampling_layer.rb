@@ -71,3 +71,51 @@ class UnigramSampler
     negative_sample
   end
 end
+
+class NegativeSamplingLoss
+  attr_accessor :params, :grads
+
+  def initialize(w, corpus, power = 0.75, sample_size = 5)
+    @sample_size = sample_size
+    @sampler = UnigramSampler.new(corpus, power, sample_size)
+    @loss_layers = (sample_size + 1).times { SigmoidWithLoss.new }
+    @embed_dot_layers = (sample_size + 1).times { EmbeddingDot.new(w) }
+
+    @params = []
+    @grads = []
+
+    @embed_dot_layers.each do |layer|
+      @params += layer.params
+      @grads += layer.grads
+    end
+  end
+
+  def forward(h, target)
+    batch_size = target.shape[0]
+    negative_sample = @sampler.get_negative_sample(target)
+
+    score = @embed_dot_layers[0].forward(h, target)
+    correct_label = Numo::UInt32.ones(batch_size)
+    loss = @loss_layers[0].forward(score, correct_label)
+
+    negative_label = Numo::UInt32.zeros(batch_size)
+    @sample_size.times do |i|
+      negative_target = negative_sample[true, i]
+      score = @embed_dot_layers[1 + i].forward(h, negative_target)
+      loss += @loss_layers[1 + i].forward(score, negative_label)
+    end
+
+    loss
+  end
+
+  def backward(dout = 1)
+    dh = 0
+
+    zip(@loss_layers, @embed_dot_layers).each do |l0, l1|
+      dscore = l0.backward(dout)
+      dh += l1.backward(dscore)
+    end
+
+    dh
+  end
+end

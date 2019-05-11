@@ -75,6 +75,33 @@ class Sigmoid
   end
 end
 
+class SigmoidWithLoss
+  attr_accessor :params, :grads
+
+  def initialize
+    @params = []
+    @grads = []
+    @loss = nil
+    @y = nil
+    @t =nil
+  end
+
+  def forward(x, t)
+    @t = t
+    @y = 1 / (1 + Numo::DFloat::Math.exp(-x))
+
+    @loss = cross_entropy_error(Numo::NArray.column_stack[1 - @y, @y], @t)
+    @loss
+  end
+
+  def backward(dout = 1)
+    batch_size = @t.shape[0]
+
+    dx = (@y - @t) * dout / batch_size
+    dx
+  end
+end
+
 class SoftmaxWithLoss
   def initialize
     @params = []
