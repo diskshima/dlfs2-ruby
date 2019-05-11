@@ -115,8 +115,13 @@ def create_contexts_target(corpus, window_size: 1)
     end
     contexts.append(cs)
   end
+  n_contexts = Numo::UInt32.zeros(contexts.length, contexts[0].length)
+  n_contexts[] = contexts
 
-  [Numo::UInt32[*contexts], Numo::UInt32[*target]]
+  n_target = Numo::UInt32.zeros(target.length)
+  n_target[] = target
+
+  [n_contexts, n_target]
 end
 
 # Calculate the Positive Pointwise Mutual Information (PPMI)

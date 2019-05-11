@@ -38,24 +38,24 @@ class UnigramSampler
     counts = {}
 
     corpus.each do |word_id|
-      counts[word_id] = counts[word_id] ? 1 : counts[word_id] + 1
+      counts[word_id] = counts[word_id] ? counts[word_id] + 1 : 1
     end
 
     vocab_size = counts.length
     @vocab_size = vocab_size
 
-    @word_p = Numo::NFloat.zeros(vocab_size)
+    @word_p = Numo::DFloat.zeros(vocab_size)
 
     vocab_size.times do |i|
       @word_p[i] = counts[i]
     end
 
     @word_p = @word_p ** power
-    @word_p = @word_p.sum
+    @word_p /= @word_p.sum
   end
 
   def get_negative_sample(target)
-    batch_size = target.sample[0]
+    batch_size = target.shape[0]
 
     negative_sample = Numo::UInt32.zeros(batch_size, @sample_size)
 
@@ -65,7 +65,7 @@ class UnigramSampler
       p[target_idx] = 0
       p /= p.sum
       negative_sample[i, true] =
-        random_choice(vocab_size, size: @sample_size, p: p)
+        random_choice(@vocab_size, size: @sample_size, p: p)
     end
 
     negative_sample
@@ -78,8 +78,8 @@ class NegativeSamplingLoss
   def initialize(w, corpus, power = 0.75, sample_size = 5)
     @sample_size = sample_size
     @sampler = UnigramSampler.new(corpus, power, sample_size)
-    @loss_layers = (sample_size + 1).times { SigmoidWithLoss.new }
-    @embed_dot_layers = (sample_size + 1).times { EmbeddingDot.new(w) }
+    @loss_layers = (sample_size + 1).times.map { SigmoidWithLoss.new }
+    @embed_dot_layers = (sample_size + 1).times.map { EmbeddingDot.new(w) }
 
     @params = []
     @grads = []
@@ -111,7 +111,7 @@ class NegativeSamplingLoss
   def backward(dout = 1)
     dh = 0
 
-    zip(@loss_layers, @embed_dot_layers).each do |l0, l1|
+    @loss_layers.zip(@embed_dot_layers).each do |l0, l1|
       dscore = l0.backward(dout)
       dh += l1.backward(dscore)
     end

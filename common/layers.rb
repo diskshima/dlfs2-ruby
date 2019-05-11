@@ -90,7 +90,7 @@ class SigmoidWithLoss
     @t = t
     @y = 1 / (1 + Numo::DFloat::Math.exp(-x))
 
-    @loss = cross_entropy_error(Numo::NArray.column_stack[1 - @y, @y], @t)
+    @loss = cross_entropy_error(Numo::NArray.column_stack([1 - @y, @y]), @t)
     @loss
   end
 
@@ -153,7 +153,7 @@ class Embedding
   def backward(dout)
     dw, = @grads
     dw[] = 0
-    get_at_dim_index(w, 0, @idx).inplace + dout
+    get_at_dim_index(dw, 0, @idx).inplace + dout
     nil
   end
 end
