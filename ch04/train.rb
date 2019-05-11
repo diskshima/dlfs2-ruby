@@ -6,6 +6,8 @@ require_relative '../common/util'
 require_relative '../dataset/ptb'
 require_relative 'cbow'
 
+SCRIPT_DIR = File.dirname(File.absolute_path(__FILE__))
+
 window_size = 5
 hidden_size = 100
 batch_size = 100
@@ -29,7 +31,7 @@ params['word_vecs'] = word_vecs
 params['word_to_id'] = word_to_id
 params['id_to_word'] = id_to_word
 
-params_file = 'cbow_params.bin'
-File.open(params_file, 'wb') do |f|
+params_path = File.join(SCRIPT_DIR, 'cbow_params.bin')
+File.open(params_path, 'wb') do |f|
   Marshal.dump(params, f)
 end
