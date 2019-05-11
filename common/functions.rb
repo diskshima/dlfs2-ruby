@@ -45,3 +45,25 @@ def get_at_dim_index(x, dim_no, idx)
   ind[dim_no] = idx
   x[*ind]
 end
+
+# Choose `size` (default: 1) numbers of elements from `a` with the given
+# probability (defaults to equal probability).
+# `a` can either be an array or Integer in which case it will be treated as
+# `(0...a).to_a`.
+#
+# @param a [Array or Integer] Array to choose from.
+# @param size [Integer] Number of elements to pick. Default is 1.
+# @param p [Array<Numeric>] Array of probabilities.
+# @return [Array] Array of items chosen.
+def random_choice(a, size: 1, p: nil)
+  array = a.class == Integer ? (0...a).to_a : a
+
+  if p
+    raise 'The number of probabilities do not match the size of the array.' \
+      if array.length != p.length
+    val_to_weight = array.zip(p).to_h
+    val_to_weight.max_by(size) { |_, weight| rand ** (1.0 / weight) }.map(&:first)
+  else
+    array.sample(size)
+  end
+end
