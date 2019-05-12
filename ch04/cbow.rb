@@ -36,14 +36,14 @@ class CBOW
     @in_layers.each_with_index do |layer, i|
       h += layer.forward(contexts[true, i])
     end
-    h = h / @in_layers.length
+    h *= 1.0 / @in_layers.length
     loss = @ns_loss.forward(h, target)
     loss
   end
 
-  def backward(dout = 1)
+  def backward(dout = 1.0)
     dout = @ns_loss.backward(dout)
-    dout *= 1 / @in_layers.length
+    dout *= 1.0 / @in_layers.length
     @in_layers.each do |layer|
       layer.backward(dout)
     end

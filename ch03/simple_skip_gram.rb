@@ -33,7 +33,7 @@ class SimpleSkipGram
     loss
   end
 
-  def backward(dout = 1)
+  def backward(dout = 1.0)
     dl1 = @loss_layer1.backward(dout)
     dl2 = @loss_layer2.backward(dout)
     ds = dl1 + dl2

@@ -38,7 +38,7 @@ class SimpleCBOW
     loss
   end
 
-  def backward(dout = 1)
+  def backward(dout = 1.0)
     ds = @loss_layer.backward(dout)
     da = @out_layer.backward(ds)
     da *= 0.5

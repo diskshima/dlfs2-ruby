@@ -35,7 +35,7 @@ class TwoLayerNet
     loss
   end
 
-  def backward(dout=1)
+  def backward(dout = 1.0)
     dout = @loss_layer.backward(dout)
     @layers.reverse.reduce(dout) { |dout, layer| layer.backward(dout) }
   end

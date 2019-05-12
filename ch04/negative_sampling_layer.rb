@@ -108,7 +108,7 @@ class NegativeSamplingLoss
     loss
   end
 
-  def backward(dout = 1)
+  def backward(dout = 1.0)
     dh = 0
 
     @loss_layers.zip(@embed_dot_layers).each do |l0, l1|

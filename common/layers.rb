@@ -65,7 +65,7 @@ class Sigmoid
   end
 
   def forward(x)
-    @out = 1 / (1 + Numo::DFloat::Math.exp(-x))
+    @out = 1.0 / (1 + Numo::DFloat::Math.exp(-x))
     @out
   end
 
@@ -88,13 +88,13 @@ class SigmoidWithLoss
 
   def forward(x, t)
     @t = t
-    @y = 1 / (1 + Numo::DFloat::Math.exp(-x))
+    @y = 1.0 / (1 + Numo::DFloat::Math.exp(-x))
 
     @loss = cross_entropy_error(Numo::NArray.column_stack([1 - @y, @y]), @t)
     @loss
   end
 
-  def backward(dout = 1)
+  def backward(dout = 1.0)
     batch_size = @t.shape[0]
 
     dx = (@y - @t) * dout / batch_size
@@ -122,7 +122,7 @@ class SoftmaxWithLoss
     loss
   end
 
-  def backward(dout=1)
+  def backward(dout = 1.0)
     batch_size = @t.shape[0]
 
     dx = @y.copy
