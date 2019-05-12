@@ -17,8 +17,8 @@ class CBOW
       layer = Embedding.new(w_in)
       @in_layers.append(layer)
     end
-    @ns_loss = NegativeSamplingLoss.new(w_out, corpus, power = 0.75,
-                                        sample_size = 5)
+    @ns_loss = NegativeSamplingLoss.new(w_out, corpus, power: 0.75,
+                                        sample_size: 5)
 
     layers = @in_layers + [@ns_loss]
     @params = []

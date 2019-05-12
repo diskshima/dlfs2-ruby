@@ -75,7 +75,7 @@ end
 class NegativeSamplingLoss
   attr_accessor :params, :grads
 
-  def initialize(w, corpus, power = 0.75, sample_size = 5)
+  def initialize(w, corpus, power: 0.75, sample_size: 5)
     @sample_size = sample_size
     @sampler = UnigramSampler.new(corpus, power, sample_size)
     @loss_layers = (sample_size + 1).times.map { SigmoidWithLoss.new }
