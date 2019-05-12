@@ -234,3 +234,67 @@ def clip_grads(grads, max_norm)
     grads.each { |grad| grad *= rate }
   end
 end
+
+# Print analogy i.e. "a to b" is "c to ?".
+#
+# @param a [String]
+# @param b [String]
+# @param c [String]
+# @param word_to_id [Hash<String, Integer>] Word to ID.
+# @param id_to_word [Hash<Integer, String>] ID to word.
+# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent
+#   the word vector for the index.
+# @param top [Integer] Number of top possibilities to show.
+# @param answer [String] The word to compare how close the matrix is to the query.
+def analogy(a, b, c, word_to_id, id_to_word, word_matrix, top: 5, answer: nil)
+  all_found = true
+  [a, b, c].each do |word|
+    unless word_to_id.include?(word)
+      puts("#{word} not found.")
+      all_found = false
+    end
+  end
+
+  return unless all_found
+
+  puts("\n[analogy] #{a}:#{b} = #{c}:?")
+  a_vec = word_matrix[word_to_id[a], true]
+  b_vec = word_matrix[word_to_id[b], true]
+  c_vec = word_matrix[word_to_id[c], true]
+  query_vec = b_vec - a_vec + c_vec
+  query_vec = normalize(query_vec)
+
+  similarity = word_matrix.dot(query_vec).to_a
+
+  if answer
+    puts("===>#{answer}:#{word_matrix[word_to_id[answer]].dot(query_vec)}")
+  end
+
+  count = 0
+
+  sorted_indexes = similarity.map.with_index.sort.map(&:last).reverse
+
+  sorted_indexes.each do |i|
+    # TODO: Deal with NaNs
+    next if [a, b, c].include?(id_to_word[i])
+
+    puts(" #{id_to_word[i]}: #{similarity[i]}")
+
+    count += 1
+    break if count >= top
+  end
+end
+
+# Normalize the given matrix or vector.
+#
+# @param x [Numo::NArray] 1 or 2 dimention matrix.
+# @return [Numo::NArray] The normalized 1 dimention result.
+def normalize(x)
+  if x.ndim == 2
+    s = Numo::DFloat::Math.sqrt((x ** 2).sum(axis: 1))
+    x / s.reshape(s.shape[0], 1)
+  elsif x.ndim == 1
+    s = Numo::DFloat::Math.sqrt((x ** 2).sum)
+    x / s
+  end
+end
