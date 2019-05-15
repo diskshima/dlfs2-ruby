@@ -57,7 +57,7 @@ class UnigramSampler
   def get_negative_sample(target)
     batch_size = target.shape[0]
 
-    negative_sample = Numo::UInt32.zeros(batch_size, @sample_size)
+    negative_sample = Numo::Int32.zeros(batch_size, @sample_size)
 
     batch_size.times do |i|
       p = @word_p.copy
@@ -95,10 +95,10 @@ class NegativeSamplingLoss
     negative_sample = @sampler.get_negative_sample(target)
 
     score = @embed_dot_layers[0].forward(h, target)
-    correct_label = Numo::UInt32.ones(batch_size)
+    correct_label = Numo::Int32.ones(batch_size)
     loss = @loss_layers[0].forward(score, correct_label)
 
-    negative_label = Numo::UInt32.zeros(batch_size)
+    negative_label = Numo::Int32.zeros(batch_size)
     @sample_size.times do |i|
       negative_target = negative_sample[true, i]
       score = @embed_dot_layers[1 + i].forward(h, negative_target)

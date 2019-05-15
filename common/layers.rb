@@ -83,7 +83,7 @@ class SigmoidWithLoss
     @grads = []
     @loss = nil
     @y = nil
-    @t =nil
+    @t = nil
   end
 
   def forward(x, t)
