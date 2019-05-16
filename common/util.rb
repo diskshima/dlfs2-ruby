@@ -144,7 +144,7 @@ def ppmi(c, verbose: false, eps: 1e-8)
 
       if verbose
         count += 1
-        if count % (total / 100) == 0
+        if count % (total.to_f / 100) == 0
           printf("%.1f%% done\n", 100 * count / total)
         end
       end
