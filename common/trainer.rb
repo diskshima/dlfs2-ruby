@@ -5,13 +5,16 @@ require_relative 'layers'
 require_relative 'util'
 
 def remove_duplicates(params, grads)
+  params = params.clone
+  grads = grads.clone
+
   loop do
     found = false
     param_count = params.length
 
     param_count.times do |i|
       (i+1...param_count).each do |j|
-        if params[i] == params[j]
+        if params[i].object_id == params[j].object_id
           grads[i] += grads[j]
           found = true
           params.delete_at(j)
