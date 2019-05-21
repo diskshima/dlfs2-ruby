@@ -34,15 +34,32 @@ def cross_entropy_error(y, t)
   -Numo::DFloat::Math.log(y[idxs] + 1e-7).sum / batch_size
 end
 
-def to_full_index(t, cls_num)
+# Converts `t`-th class notation to its index in a Numo::NArray.
+#
+# This was necessary as Numo::NArray does not support notations like `x[[0,1], t]`
+# to extract t-th item in the 1st and 2nd row of a matrix
+# `x[to_full_index(t, x.shape[0]]` will be equal to Python's numpy notation of
+# `x[x.shape[0], t]`.
+#
+# @param t [Array<Integer>] Vector of denoting each index of the corresponding class.
+# @param cls_count [Integer] Number of elements each row has.
+# @return [Array<Integer>] Index into a Numo::NArray.
+def to_full_index(t, cls_count)
   t.to_a.each_with_index.map do |val, index|
-    cls_num * index + val
+    cls_count * index + val
   end
 end
 
-def get_at_dim_index(x, dim_no, idx)
+# Return a view for the `idxs` in the `dim_no` dimention of the matrix `x`.
+# Essentially a shortcut for writing `x[true, idxs, true, ...]` to retrieve
+# the `idxs` index values in the 2nd dimension.
+#
+# @param x [Numo::NArray] Matrix.
+# @param dim_no [Integer] Dimension number.
+# @param idxs [Integer or Array<Integer>] index(es) in the `dim_no` dimension.
+def get_at_dim_index(x, dim_no, idxs)
   ind = Array.new(x.ndim, true)
-  ind[dim_no] = idx
+  ind[dim_no] = idxs
   x[*ind]
 end
 
@@ -50,6 +67,9 @@ end
 # probability (defaults to equal probability).
 # `a` can either be an array or Integer in which case it will be treated as
 # `(0...a).to_a`.
+#
+# Implementation is based on the Weighted Random Sampling by Efraimidis and Spirakis
+# (https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-30162-4_478).
 #
 # @param a [Array or Integer] Array to choose from.
 # @param size [Integer] Number of elements to pick. Default is 1.
