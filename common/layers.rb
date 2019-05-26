@@ -115,7 +115,7 @@ class SoftmaxWithLoss
     @y = softmax(x)
 
     if @t.size == @y.size
-      @t = argmax(@t)
+      @t = argmax(@t, axis: 1)
     end
 
     loss = cross_entropy_error(@y, @t)

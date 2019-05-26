@@ -14,8 +14,13 @@ def softmax(x)
   end
 end
 
-def argmax(x)
-  x.max_index(axis: 1) % x.shape[1]
+# Returns the indices of the maximum values along an axis.
+#
+# @param x [Numo::NArray] Matrix.
+# @param axis [Integer] axis.
+# @return [Array<Integer>] Indices with the maximum value.
+def argmax(x, axis: nil)
+  x.max_index(axis: axis) % x.shape[axis]
 end
 
 def cross_entropy_error(y, t)
@@ -25,7 +30,7 @@ def cross_entropy_error(y, t)
   end
 
   if t.size == y.size
-    t = argmax(t)
+    t = argmax(t, axis: 1)
   end
 
   batch_size = y.shape[0]

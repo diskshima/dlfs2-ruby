@@ -72,7 +72,7 @@ end
 x_in = Numo::DFloat[*grid]
 x_in *= h
 score = model.predict(x_in)
-predict_cls = argmax(score)
+predict_cls = argmax(score, axis: 1)
 
 
 Gnuplot.open do |gp|
