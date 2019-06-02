@@ -2,6 +2,8 @@ require 'numo/narray'
 require_relative '../common/time_layers'
 
 class SimpleRnnlm
+  attr_accessor :params, :grads
+
   def initialize(vocab_size, wordvec_size, hidden_size)
     v, d, h = vocab_size, wordvec_size, hidden_size
     ndn = Numo::DFloat.new
