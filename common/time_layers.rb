@@ -66,10 +66,10 @@ class TimeRNN
       @h = Numo::DFloat.zeros(n, h)
     end
 
-    T.times do |t|
+    t.times do |ti|
       layer = RNN.new(*@params)
-      @h = layer.forward(get_at_dim_index(x, 1, t), @h)
-      get_at_dim_index(hs, 1, t).inplace = @h
+      @h = layer.forward(get_at_dim_index(x, 1, ti), @h)
+      get_at_dim_index(hs, 1, ti).inplace = @h
       @layers.append(layer)
     end
 
@@ -142,9 +142,9 @@ class TimeEmbedding
     n, t, d = dout.shape
 
     grad = 0
-    T.times do |t|
-      layer = @layers[t]
-      layer.backward(get_at_dim_index(dout, 1, t))
+    t.times do |ti|
+      layer = @layers[ti]
+      layer.backward(get_at_dim_index(dout, 1, ti))
       grad += layer.grads[0]
     end
 
