@@ -1,5 +1,9 @@
 require 'numo/narray'
 
+# Returns the softmax of the given matrix.
+#
+# @param x [Numo::NArray] Matrix.
+# @return [Numo::NArray] Softmax.
 def softmax(x)
   ndim = x.ndim
 

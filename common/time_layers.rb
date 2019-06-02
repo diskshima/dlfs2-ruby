@@ -191,3 +191,51 @@ class TimeAffine
     dx
   end
 end
+
+class TimeSoftmaxWithLoss
+  attr_accessor :params, :grads
+
+  def initialize
+    @params = []
+    @grads = []
+    @cache = nil
+    @ignore_label = -1
+  end
+
+  def forward(xs, ts)
+    n, t, v = xs.shape
+
+    if ts.ndim == 3
+      ts = argmax(ts, axis: 2)
+    end
+
+    mask = ts.ne(@ignore_label)
+
+    xs = xs.reshape(n * t, v)
+    ts = ts.reshape(n * t)
+    mask = mask.reshape(n * t)
+
+    ys = softmax(xs)
+    ls = Numo::DFloat::Math.log(ys[Numo::UInt32.new(n * t).seq, ts])
+    ls *= mask
+    loss = -ls.sum
+    loss /= mask.sum
+
+    @cache = [ts, ys, mask, [n, t, v]]
+    loss
+  end
+
+  def backward(dout = 1.0)
+    ts, ys, mask, shapes = @cache
+    n, t, v = shapes
+
+    ds = ys
+    dx[Numo::UInt32.new(n * t), ts] -= 1
+    dx *= dout
+    dx /= mask.sum()
+    dx *= mask[false, :new]
+
+    dx = dx.reshape(n, t, v)
+    dx
+  end
+end
