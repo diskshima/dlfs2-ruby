@@ -11,10 +11,10 @@ time_size = 5
 lr = 0.1
 max_epoch = 100
 
-corpus, word_to_id, id_to_word = load_data('train')
+corpus, word_to_id, id_to_word = load_data(:train)
 corpus_size = 1_000
-corpus = corpus[0...1_000]
-vocab_size = max(corpus) + 1
+corpus = corpus[0...corpus_size]
+vocab_size = corpus.max + 1
 
 xs = corpus[0...-1]
 ts = corpus[1..-1]
@@ -31,12 +31,12 @@ model = SimpleRnnlm.new(vocab_size, wordvec_size, hidden_size)
 optimizer = SGD.new(lr)
 
 jump = (corpus_size - 1) / batch_size
-offsets = (0...batch_size).times { |i| i * jump }
+offsets = (0...batch_size).map { |i| i * jump }
 
 max_epoch.times do |epoch|
   max_iters.times do |iter|
-    batch_x = Numo::UInt32.new(batch_size, time_size).ones
-    batch_t = Numo::UInt32.new(batch_size, time_size).ones
+    batch_x = Numo::UInt32.ones(batch_size, time_size)
+    batch_t = Numo::UInt32.ones(batch_size, time_size)
 
     time_size.times do |t|
       offsets.each_with_index do |offset, i|

@@ -66,10 +66,22 @@ end
 # @param x [Numo::NArray] Matrix.
 # @param dim_no [Integer] Dimension number.
 # @param idxs [Integer or Array<Integer>] index(es) in the `dim_no` dimension.
+# @return [Numo::NArray(view)] View of the extracted matrix.
 def get_at_dim_index(x, dim_no, idxs)
+  ind = dim_full_indices(x, dim_no, idxs)
+  x[*ind]
+end
+
+# Return the full indexes for the `idxs` in the `dim_no` dimention of the matrix `x`.
+#
+# @param x [Numo::NArray] Matrix.
+# @param dim_no [Integer] Dimension number.
+# @param idxs [Integer or Array<Integer>] index(es) in the `dim_no` dimension.
+# @return [Array<Integer>] Array of indices.
+def dim_full_indices(x, dim_no, idxs)
   ind = Array.new(x.ndim, true)
   ind[dim_no] = idxs
-  x[*ind]
+  ind
 end
 
 # Choose `size` (default: 1) numbers of elements from `a` with the given
