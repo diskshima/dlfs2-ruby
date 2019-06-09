@@ -223,7 +223,7 @@ class TimeSoftmaxWithLoss
     mask = mask.reshape(n * t)
 
     ys = softmax(xs)
-    ls = Numo::DFloat::Math.log(ys[Numo::UInt32.new(n * t).seq, ts])
+    ls = Numo::DFloat::Math.log(paired_access(ys, Numo::UInt32.new(n * t).seq, ts))
     ls *= mask
     loss = -ls.sum
     loss /= mask.sum
@@ -237,7 +237,8 @@ class TimeSoftmaxWithLoss
     n, t, v = shapes
 
     dx = ys
-    dx[Numo::UInt32.new(n * t).seq, ts] -= 1
+    full_idxs = paired_access_idxs(dx, Numo::UInt32.new(n * t).seq, ts)
+    dx[full_idxs] -= 1
     dx *= dout
     dx /= mask.sum()
     dx *= mask[false, :new]

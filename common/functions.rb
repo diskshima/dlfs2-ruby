@@ -84,6 +84,19 @@ def dim_full_indices(x, dim_no, idxs)
   ind
 end
 
+def paired_access(x, idxs1, idxs2)
+  x[paired_access_idxs(x, idxs1, idxs2)]
+end
+
+def paired_access_idxs(x, idxs1, idxs2)
+  tmp_idxs2 = idxs2.to_a
+  full_idxs = idxs1.to_a.map.with_index do |val, i|
+    x.shape[0] * val + tmp_idxs2[i]
+  end
+
+  full_idxs
+end
+
 # Choose `size` (default: 1) numbers of elements from `a` with the given
 # probability (defaults to equal probability).
 # `a` can either be an array or Integer in which case it will be treated as
