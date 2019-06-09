@@ -85,11 +85,11 @@ class TimeRNN
     dxs = Numo::DFloat.zeros(n, t, d)
     dh = 0
     grads = [0, 0, 0]
-    t.times.reverse_each do |t|
-      layer = @layers[t]
-      dx, dh = layer.backward(get_at_dim_index(dhs, 1, t) + dh)
+    t.times.reverse_each do |ti|
+      layer = @layers[ti]
+      dx, dh = layer.backward(get_at_dim_index(dhs, 1, ti) + dh)
 
-      dxs_fi = dim_full_indices(dxs, 1, t)
+      dxs_fi = dim_full_indices(dxs, 1, ti)
       dxs[*dxs_fi] = dx
 
       layer.grads.each_with_index do |grad, i|
