@@ -69,7 +69,7 @@ Gnuplot.open do |gp|
     plot.xlabel('epoch')
     plot.ylabel('perplexity')
 
-    plot.data << Gnuplot::Dataset.new([x, ppl_list]) do |ds|
+    plot.data << Gnuplot::DataSet.new([x, ppl_list]) do |ds|
       ds.title = 'train'
     end
   end
