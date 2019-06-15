@@ -27,6 +27,8 @@ total_loss = 0
 loss_count = 0
 ppl_list = []
 
+Numo::NArray.srand
+
 model = SimpleRnnlm.new(vocab_size, wordvec_size, hidden_size)
 optimizer = SGD.new(lr)
 

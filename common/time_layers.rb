@@ -68,9 +68,8 @@ class TimeRNN
 
     t.times do |ti|
       layer = RNN.new(*@params)
-      @h = layer.forward(get_at_dim_index(xs, 1, ti), @h)
-      ti_fi = dim_full_indices(hs, 1, ti)
-      hs[*ti_fi] = @h
+      @h = layer.forward(xs[true, ti, true], @h)
+      hs[true, ti, true] = @h
       @layers.append(layer)
     end
 
@@ -87,10 +86,9 @@ class TimeRNN
     grads = [0, 0, 0]
     t.times.reverse_each do |ti|
       layer = @layers[ti]
-      dx, dh = layer.backward(get_at_dim_index(dhs, 1, ti) + dh)
+      dx, dh = layer.backward(dhs[true, ti, true] + dh)
 
-      dxs_fi = dim_full_indices(dxs, 1, ti)
-      dxs[*dxs_fi] = dx
+      dxs[true, ti, true] = dx
 
       layer.grads.each_with_index do |grad, i|
         grads[i] += grad
@@ -134,8 +132,7 @@ class TimeEmbedding
 
     t.times do |ti|
       layer = Embedding.new(@w)
-      full_idxs = dim_full_indices(out, 1, ti)
-      out[*full_idxs] = layer.forward(xs[true, ti])
+      out[true, ti, true] = layer.forward(xs[true, ti])
       @layers.append(layer)
     end
 
@@ -148,7 +145,7 @@ class TimeEmbedding
     grad = 0
     t.times do |ti|
       layer = @layers[ti]
-      layer.backward(get_at_dim_index(dout, 1, ti))
+      layer.backward(dout[true, ti, true])
       grad += layer.grads[0]
     end
 
