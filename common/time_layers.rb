@@ -7,7 +7,7 @@ class RNN
 
   def initialize(wx, wh, b)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh),
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
               Numo::DFloat.zeros(b.shape)]
     @cache = nil
   end
@@ -15,7 +15,7 @@ class RNN
   def forward(x, h_prev)
     wx, wh, b = @params
     t = h_prev.dot(wh) + x.dot(wx) + b
-    h_next = Numo::DFloat.tanh(t)
+    h_next = Numo::DFloat::Math.tanh(t)
 
     @cache = [x, h_prev, h_next]
     h_next
@@ -45,7 +45,7 @@ class TimeRNN
 
   def initialize(wx, wh, b, stateful: false)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh),
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
               Numo::DFloat.zeros(b.shape)]
     @layers = nil
 
@@ -60,7 +60,7 @@ class TimeRNN
     d, h = wx.shape
 
     @layers = []
-    hs = Numo::DFloat.new(n, h)
+    hs = Numo::DFloat.zeros(n, t, h)
 
     if !@stateful || !@h
       @h = Numo::DFloat.zeros(n, h)
@@ -68,8 +68,8 @@ class TimeRNN
 
     t.times do |ti|
       layer = RNN.new(*@params)
-      @h = layer.forward(get_at_dim_index(x, 1, ti), @h)
-      get_at_dim_index(hs, 1, ti).inplace = @h
+      @h = layer.forward(xs[true, ti, true], @h)
+      hs[true, ti, true] = @h
       @layers.append(layer)
     end
 
@@ -81,13 +81,14 @@ class TimeRNN
     n, t, h = dhs.shape
     d, h = wx.shape
 
-    dxs = Numo::DFloat.new(n, t, d)
+    dxs = Numo::DFloat.zeros(n, t, d)
     dh = 0
     grads = [0, 0, 0]
-    t.times.reverse_each do |t|
-      layer = @layers[t]
-      dx, dh = layer.backward(get_at_dim_index(dhs, 1, t) + dh)
-      get_at_dim_index(dxs, 1, t).inplace = dx
+    t.times.reverse_each do |ti|
+      layer = @layers[ti]
+      dx, dh = layer.backward(dhs[true, ti, true] + dh)
+
+      dxs[true, ti, true] = dx
 
       layer.grads.each_with_index do |grad, i|
         grads[i] += grad
@@ -117,7 +118,7 @@ class TimeEmbedding
 
   def initialize(w)
     @params = [w]
-    @grads = Numo::DFloat.zeros(w.shape)
+    @grads = [Numo::DFloat.zeros(w.shape)]
     @layers = nil
     @w = w
   end
@@ -126,12 +127,12 @@ class TimeEmbedding
     n, t = xs.shape
     v, d = @w.shape
 
-    out = Numo::DFloat.new(n, t, d)
+    out = Numo::DFloat.zeros(n, t, d)
     @layers = []
 
-    t.times do |t|
+    t.times do |ti|
       layer = Embedding.new(@w)
-      get_at_dim_index(out, 1, t).inplace = layer.forward(xs[true, t])
+      out[true, ti, true] = layer.forward(xs[true, ti])
       @layers.append(layer)
     end
 
@@ -144,7 +145,7 @@ class TimeEmbedding
     grad = 0
     t.times do |ti|
       layer = @layers[ti]
-      layer.backward(get_at_dim_index(dout, 1, ti))
+      layer.backward(dout[true, ti, true])
       grad += layer.grads[0]
     end
 
@@ -166,10 +167,12 @@ class TimeAffine
     n, t, d = x.shape
     w, b = @params
 
-    rx = x.reshape(n * t, -1)
+    rest = x.size / (n * t)
+    rx = x.reshape(n * t, rest)
     out = rx.dot(w) + b
     @x = x
-    out.reshape(n, t, -1)
+    out_rest = out.size / (n * t)
+    out.reshape(n, t, out_rest)
   end
 
   def backward(dout)
@@ -177,8 +180,9 @@ class TimeAffine
     n, t, d = x.shape
     w, b = @params
 
-    dout = dout.reshape(n * t, -1)
-    rx = x.reshape(n * t, -1)
+    dout_rest = dout.size / (n * t)
+    dout = dout.reshape(n * t, dout_rest)
+    rx = x.reshape(n * t, d)
 
     db = dout.sum(axis: 0)
     dw = rx.transpose.dot(dout)
@@ -209,14 +213,14 @@ class TimeSoftmaxWithLoss
       ts = argmax(ts, axis: 2)
     end
 
-    mask = ts.ne(@ignore_label)
+    mask = Numo::UInt32.cast(ts.ne(@ignore_label))
 
     xs = xs.reshape(n * t, v)
     ts = ts.reshape(n * t)
     mask = mask.reshape(n * t)
 
     ys = softmax(xs)
-    ls = Numo::DFloat::Math.log(ys[Numo::UInt32.new(n * t).seq, ts])
+    ls = Numo::DFloat::Math.log(paired_access(ys, Numo::UInt32.new(n * t).seq, ts))
     ls *= mask
     loss = -ls.sum
     loss /= mask.sum
@@ -229,8 +233,9 @@ class TimeSoftmaxWithLoss
     ts, ys, mask, shapes = @cache
     n, t, v = shapes
 
-    ds = ys
-    dx[Numo::UInt32.new(n * t), ts] -= 1
+    dx = ys
+    full_idxs = paired_access_idxs(dx, Numo::UInt32.new(n * t).seq, ts)
+    dx[full_idxs] -= 1
     dx *= dout
     dx /= mask.sum()
     dx *= mask[false, :new]

@@ -66,10 +66,52 @@ end
 # @param x [Numo::NArray] Matrix.
 # @param dim_no [Integer] Dimension number.
 # @param idxs [Integer or Array<Integer>] index(es) in the `dim_no` dimension.
+# @return [Numo::NArray(view)] View of the extracted matrix.
 def get_at_dim_index(x, dim_no, idxs)
+  ind = dim_full_indices(x, dim_no, idxs)
+  x[*ind]
+end
+
+# Return the full indexes for the `idxs` in the `dim_no` dimention of the matrix `x`.
+#
+# @param x [Numo::NArray] Matrix.
+# @param dim_no [Integer] Dimension number.
+# @param idxs [Integer or Array<Integer>] index(es) in the `dim_no` dimension.
+# @return [Array<Integer>] Array of indices.
+def dim_full_indices(x, dim_no, idxs)
   ind = Array.new(x.ndim, true)
   ind[dim_no] = idxs
-  x[*ind]
+  ind
+end
+
+# Calls `paired_access_idxs` and returns the corresponding elements from `x`.
+#
+# @see paired_access_idxs
+#
+# @param x     [Numo::NArray] Matrix.
+# @param idxs1 [Array-like] indexes in the 1st dimension.
+# @param idxs2 [Array-like] indexes in the 2nd dimension.
+# @return [Numo::NArray] Elements at the given indexes.
+def paired_access(x, idxs1, idxs2)
+  x[paired_access_idxs(x, idxs1, idxs2)]
+end
+
+# Return the full indexes when given two arrays where each element with the
+# same index corresponding to the 1st and 2nd index in the matrix `x`.
+# This is the same as numpy's notation of `x[[0, 1, 2], [2, 2, 5]]` meaning
+# the elements at [0, 2], [1, 2], [2, 5].
+#
+# @param x     [Numo::NArray] Matrix.
+# @param idxs1 [Array-like] indexes in the 1st dimension.
+# @param idxs2 [Array-like] indexes in the 2nd dimension.
+# @return [Array<Integer>] Array of the indices.
+def paired_access_idxs(x, idxs1, idxs2)
+  tmp_idxs2 = idxs2.to_a
+  full_idxs = idxs1.to_a.map.with_index do |val, i|
+    x.shape[1] * val + tmp_idxs2[i]
+  end
+
+  full_idxs
 end
 
 # Choose `size` (default: 1) numbers of elements from `a` with the given

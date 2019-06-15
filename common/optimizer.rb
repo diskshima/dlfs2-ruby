@@ -7,7 +7,7 @@ class SGD
   end
 
   def update(params, grads)
-    for i in (0...params.length) do
+    params.length.times do |i|
       params[i].inplace - @lr * grads[i]
     end
   end
