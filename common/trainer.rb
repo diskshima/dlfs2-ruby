@@ -94,7 +94,7 @@ class Trainer
     end
   end
 
-  def plot(ylim: nil)
+  def plot(ylim = nil)
     x = (0...@loss_list.length).to_a
     eval_interval = @eval_interval
     loss_list = @loss_list
