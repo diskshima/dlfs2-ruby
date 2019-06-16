@@ -94,7 +94,7 @@ class Trainer
     end
   end
 
-  def plot(ylim: nil)
+  def plot(ylim = nil)
     x = (0...@loss_list.length).to_a
     eval_interval = @eval_interval
     loss_list = @loss_list
@@ -108,6 +108,97 @@ class Trainer
         plot.ylabel('loss')
 
         plot.data << Gnuplot::DataSet.new([x, loss_list]) do |ds|
+          ds.title = 'train'
+          ds.with = 'lines'
+          ds.linewidth = 2
+        end
+      end
+    end
+  end
+end
+
+class RnnlmTrainer
+  def initialize(model, optimizer)
+    @model = model
+    @optimizer = optimizer
+    @time_idx = nil
+    @ppl_list = nil
+    @eval_interval = nil
+    @current_epoch = 0
+  end
+
+  def get_batch(x, t, batch_size, time_size)
+    batch_x = Numo::UInt32.zeros(batch_size, time_size)
+    batch_t = Numo::UInt32.zeros(batch_size, time_size)
+
+    data_size = x.length
+    jump = data_size / batch_size
+    offsets = (0...batch_size).map { |i| i * jump }
+
+    time_size.times do |time|
+      offsets.each_with_index do |offset, i|
+        batch_x[i, time] = x[(offset + @time_idx) % data_size]
+        batch_t[i, time] = t[(offset + @time_idx) % data_size]
+      end
+      @time_idx += 1
+    end
+
+    [batch_x, batch_t]
+  end
+
+  def fit(xs, ts, max_epoch = 10, batch_size = 20, time_size = 35,
+          max_grad = nil, eval_interval = 20)
+    data_size = xs.length
+    max_iters = data_size / (batch_size * time_size)
+    @time_idx = 0
+    @ppl_list = []
+    @eval_interval = eval_interval
+    model = @model
+    optimizer = @optimizer
+    total_loss = 0
+    loss_count = 0
+
+    start_time = Time.now
+    max_epoch.times do |epoch|
+      max_iters.times do |iters|
+        batch_x, batch_t = get_batch(xs, ts, batch_size, time_size)
+
+        loss = model.forward(batch_x, batch_t)
+        model.backward
+        params, grads = remove_duplicates(model.params, model.grads)
+
+        clip_grads(grads, max_grad) if max_grad
+
+        optimizer.update(params, grads)
+        total_loss += loss
+        loss_count += 1
+
+        if eval_interval && (iters % eval_interval) == 0
+          ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
+          elapsed_time = Time.now
+          printf("| epoch %d | iter %d / %d | time %d[ms] | perplexity %.2f\n",
+                 @current_epoch + 1, iters + 1, max_iters, elapsed_time, ppl)
+          @ppl_list.append(ppl.to_f)
+          total_loss = 0
+          loss_count = 0
+        end
+      end
+
+      @current_epoch += 1
+    end
+  end
+
+  def plot(ylim = nil)
+    x = (0...@ppl_list.length).to_a
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new(gp) do |plot|
+        plot.set(:yrange, ylim) if ylim
+        plot.set(:key, 'box right top')
+        plot.xlabel("iterations (x#{@eval_interval})")
+        plot.ylabel('perplexity')
+
+        plot.data << Gnuplot::DataSet.new([x, @ppl_list]) do |ds|
           ds.title = 'train'
           ds.with = 'lines'
           ds.linewidth = 2
