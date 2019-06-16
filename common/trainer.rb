@@ -189,7 +189,7 @@ class RnnlmTrainer
   end
 
   def plot(ylim = nil)
-    x = [0...@ppl_list.length]
+    x = (0...@ppl_list.length).to_a
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new(gp) do |plot|
