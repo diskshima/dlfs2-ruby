@@ -231,7 +231,7 @@ def clip_grads(grads, max_norm)
   rate = max_norm / (total_norm + 1e-6)
 
   if rate < 1
-    grads.each { |grad| grad *= rate }
+    grads.each { |grad| grad.inplace * rate }
   end
 end
 
