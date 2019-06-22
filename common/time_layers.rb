@@ -113,6 +113,76 @@ class TimeRNN
   end
 end
 
+class LSTM
+  attr_accessor :params, :grads
+
+  def initialize(wx, wh, b)
+    @params = [wx, wh, b]
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
+              Numo::DFloat.zeros(b.shape)]
+    @cache = nil
+  end
+
+  def forward(x, h_prev, c_prev)
+    wx, wh, b = @params
+    n, h = h_prev.shape
+
+    a = x.dot(wx) + h_prev.dot(wh) + b
+
+    f = a[true, (0...h).to_a]
+    g = a[true, (h...2*h).to_a]
+    i = a[true, (2*h...3*h).to_a]
+    o = a[true, (3*h...4*h).to_a]
+
+    f = sigmoid(f)
+    g = Numo::DFloat::Math.tanh(g)
+    i = sigmoid(i)
+    o = sigmoid(o)
+
+    c_next = f * c_prev + g * i
+    h_next = o * Numo::DFloat::Math.tanh(c_next)
+
+    @cache = [x, h_prev, c_prev, i, f, g, o, c_next]
+    [h_next, c_next]
+  end
+
+  def backward(dh_next, dc_next)
+    wx, wh, b = @params
+    x, h_prev, c_prev, i, f, g, o, c_next = @cache
+
+    tanh_c_next = Numo::DFloat::Math.tanh(c_next)
+
+    ds = dc_next + (dh_next * o) * (1 - tanh_c_next ** 2)
+
+    dc_prev = ds * f
+
+    di = ds * g
+    df = ds * c_prev
+    dou = dh_next * tanh_c_next
+    dg = ds * i
+
+    di.inplace * (i * (1 - i))
+    df.inplace * (f * (1 - f))
+    dou.inplace * (o * (1 - o))
+    dg.inplace * (1 - g ** 2)
+
+    da = Numo::NArray.hstack([df, dg, di, dou])
+
+    dwh = h_prev.transpose.dot(da)
+    dwx = x.transpose.dot(da)
+    db = da.sum(axis: 0)
+
+    @grads[0][] = dwx
+    @grads[1][] = dwh
+    @grads[2][] = db
+
+    dx = da.dot(wx.tranpose)
+    dh_prev = da.dot(wh.transpose)
+
+    [dx, dh_prev, dc_prev]
+  end
+end
+
 class TimeEmbedding
   attr_accessor :params, :grads
 
