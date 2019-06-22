@@ -1,0 +1,34 @@
+require 'numo/narray'
+require 'gnuplot'
+
+N = 2
+H = 3
+T = 20
+
+dh = Numo::Int32.ones(N, H)
+
+wh = Numo::DFloat.new(H, H).rand_norm
+
+norm_list = []
+T.times do
+  dh = dh.dot(wh.transpose)
+  norm = Math.sqrt((dh**2).sum) / N
+  norm_list.append(norm)
+end
+
+puts norm_list
+
+Gnuplot.open do |gp|
+  Gnuplot::Plot.new(gp) do |plot|
+    plot.xlabel('time step')
+    plot.ylabel('norm')
+    plot.xtics('(1, 5, 10, 15, 20)')
+
+    plot.data << Gnuplot::DataSet.new(
+      [(0..norm_list.length).to_a, norm_list]
+    ) do |ds|
+      ds.with = 'lines'
+      ds.linewidth = 3
+    end
+  end
+end
