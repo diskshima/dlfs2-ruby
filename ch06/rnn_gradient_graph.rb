@@ -3,9 +3,9 @@ require 'gnuplot'
 
 N = 2
 H = 3
-T = 20
+T = 50
 
-dh = Numo::Int32.ones(N, H)
+dh = Numo::DFloat.ones(N, H)
 
 wh = Numo::DFloat.new(H, H).rand_norm
 
@@ -16,7 +16,7 @@ T.times do
   norm_list.append(norm)
 end
 
-puts norm_list
+p norm_list
 
 Gnuplot.open do |gp|
   Gnuplot::Plot.new(gp) do |plot|
