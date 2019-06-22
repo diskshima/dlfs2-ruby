@@ -1,3 +1,5 @@
+# frozen_literal_string: true
+
 require 'numo/narray'
 
 # Returns the sigmoid of `x`.

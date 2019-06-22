@@ -1,3 +1,5 @@
+# frozen_literal_string: true
+
 require 'numo/narray'
 
 dw1 = Numo::DFloat.new(3, 3).rand * 10

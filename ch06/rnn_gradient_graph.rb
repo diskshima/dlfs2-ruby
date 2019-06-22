@@ -1,3 +1,5 @@
+# frozen_literal_string: true
+
 require 'numo/narray'
 require 'gnuplot'
 

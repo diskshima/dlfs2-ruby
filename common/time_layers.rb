@@ -1,3 +1,5 @@
+# frozen_literal_string: true
+
 require 'numo/narray'
 require_relative 'functions'
 require_relative 'layers'
@@ -307,7 +309,7 @@ class TimeSoftmaxWithLoss
     full_idxs = paired_access_idxs(dx, Numo::UInt32.new(n * t).seq, ts)
     dx[full_idxs] -= 1
     dx *= dout
-    dx /= mask.sum()
+    dx /= mask.sum
     dx *= mask[false, :new]
 
     dx = dx.reshape(n, t, v)
