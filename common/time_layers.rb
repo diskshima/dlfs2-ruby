@@ -185,6 +185,83 @@ class LSTM
   end
 end
 
+class TimeLSTM
+  attr_accessor :params, :grads
+  def initialize(wx, wh, b, stateful = false)
+    @params = [wx, wh, b]
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
+              Numo::DFloat.zeros(b.shape)]
+    @layers = nil
+
+    @h = nil
+    @c = nil
+    @dh = nil
+    @stateful = stateful
+  end
+
+  def forward(xs)
+    wx, wh, b = @params
+    n, t, d = xs.shape
+    h = wh.shape[0]
+
+    @layers = []
+    hs = Numo::DFloat.zeros(n, t, h)
+
+    if !@stateful || !@h
+      @h = Numo::DFloat.zeros(n, h)
+    end
+
+    if !@stateful || !@c
+      @c = Numo::DFloat.zeros(n, h)
+    end
+
+    t.times do |ti|
+      layer = LSTM.new(*@params)
+      @h, @c = layer.forward(xs[true, ti, true], @h, @c)
+      hs[true, ti, true] = @h
+
+      @layers.append(layer)
+    end
+  end
+
+  def backward(dhs)
+    wx, wh, b = @params
+    n, t, h = dhs.shape
+    d = wx.shape[0]
+
+    dxs = Numo::DFloat.zeros(n, t, d)
+    dh = 0
+    dc = 0
+
+    grads = [0, 0, 0]
+
+    T.times.reverse_each do |ti|
+      layer = @layers[ti]
+      dx, dh, dc = layer.backward(dhs[true, t, true] + dh, dc)
+      dxs[true, t, true] = dx
+      layer.grads.each_with_index do |grad, i|
+        grads[i] += grad
+      end
+    end
+
+    grads.each_with_index do |grad, i|
+      @grads[ti][] = grad
+    end
+    @dh = dh
+    dxs
+  end
+
+  def set_state(h, c = nil)
+    @h = h
+    @c = c
+  end
+
+  def reset_state
+    @h = nil
+    @c = nil
+  end
+end
+
 class TimeEmbedding
   attr_accessor :params, :grads
 
