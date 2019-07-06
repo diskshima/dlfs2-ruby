@@ -4,4 +4,4 @@ gem 'byebug'
 gem 'gnuplot'
 gem 'numo-linalg'
 gem 'numo-narray'
-gem 'yard'
+gem "yard", ">= 0.9.20"
