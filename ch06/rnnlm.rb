@@ -31,8 +31,8 @@ class Rnnlm < BaseModel
     @params = []
     @grads = []
     @layers.each do |layer|
-      @params.append(layer.params)
-      @grads.append(layer.grads)
+      @params += layer.params
+      @grads += layer.grads
     end
   end
 

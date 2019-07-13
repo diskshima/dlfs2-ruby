@@ -149,7 +149,7 @@ class RnnlmTrainer
   end
 
   def fit(xs, ts, max_epoch = 10, batch_size = 20, time_size = 35,
-          max_grad = nil, eval_interval = 20)
+          max_grad = nil, eval_interval: 20)
     data_size = xs.length
     max_iters = data_size / (batch_size * time_size)
     @time_idx = 0
@@ -177,7 +177,7 @@ class RnnlmTrainer
 
         if eval_interval && (iters % eval_interval) == 0
           ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
-          elapsed_time = Time.now
+          elapsed_time = (Time.now - start_time) * 1000.0
           printf("| epoch %d | iter %d / %d | time %d[ms] | perplexity %.2f\n",
                  @current_epoch + 1, iters + 1, max_iters, elapsed_time, ppl)
           @ppl_list.append(ppl.to_f)
