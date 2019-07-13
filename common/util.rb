@@ -235,6 +235,37 @@ def clip_grads(grads, max_norm)
   end
 end
 
+def eval_perplexity(model, corpus, batch_size: 10, time_size: 35)
+  puts 'evaluating perplexity ...'
+  corpus_size = corpus.length
+  total_loss = 0
+  max_iters = (corpus_size - 1) / (batch_size * time_size)
+  jump = (corpus_size - 1) / batch_size
+
+  max_iters.times do |iters|
+    xs = Numo::UInt32.zeros(batch_size, time_size)
+    ts = Numo::UInt32.zeros(batch_size, time_size)
+    time_offset = iters * time_size
+    offsets = (0...batch_size).map { |i| time_offset + (i * jump) }
+
+    time_size.times do |t|
+      offsets.each_with_index do |offset, i|
+        xs[i, t] = corpus[(offset + t) % corpus_size]
+        ts[i, t] = corpus[(offset + t + 1) % corpus_size]
+      end
+    end
+
+    loss = model.forward(xs, ts)
+    total_loss += loss
+
+    printf "\r%d / %d", iters, max_iters
+  end
+
+  puts ''
+  ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
+  ppl
+end
+
 # Print analogy i.e. "a to b" is "c to ?".
 #
 # @param a [String]
