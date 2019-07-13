@@ -262,7 +262,7 @@ def eval_perplexity(model, corpus, batch_size: 10, time_size: 35)
   end
 
   puts ''
-  ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
+  ppl = Math.exp(total_loss / max_iters)
   ppl
 end
 
