@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'numo/narray'
 require 'numo/linalg/linalg'
 Numo::Linalg::Loader.load_openblas '/usr/local/opt/openblas/lib'
@@ -34,8 +36,8 @@ end
 # @param eps [Float] Epsilon to prevent divide by zero errors.
 # @return [Float] Cosine similarity.
 def cos_similarity(x, y, eps: 1e-8)
-  nx = x / (Numo::DFloat::Math.sqrt((x ** 2).sum) + eps)
-  ny = y / (Numo::DFloat::Math.sqrt((y ** 2).sum) + eps)
+  nx = x / (Numo::DFloat::Math.sqrt((x**2).sum) + eps)
+  ny = y / (Numo::DFloat::Math.sqrt((y**2).sum) + eps)
   nx.dot(ny)
 end
 
@@ -56,10 +58,10 @@ def convert_one_hot(corpus, vocab_size)
     c = corpus.shape[1]
     one_hot = Numo::UInt32.zeros(n, c, vocab_size)
 
-    n.times do |idx_0|
-      word_ids = corpus[idx_0, true]
-      word_ids.each_with_index do |word_id, idx_1|
-        one_hot[idx_0, idx_1, word_id] = 1
+    n.times do |idx0|
+      word_ids = corpus[idx0, true]
+      word_ids.each_with_index do |word_id, idx1|
+        one_hot[idx0, idx1, word_id] = 1
       end
     end
   end
@@ -107,10 +109,10 @@ def create_contexts_target(corpus, window_size: 1)
   target = corpus[window_size...-window_size]
   contexts = []
 
-  (window_size...corpus.length-window_size).each do |idx|
+  (window_size...(corpus.length - window_size)).each do |idx|
     cs = []
     (-window_size..window_size).each do |t|
-      next if t == 0
+      next if t.zero?
       cs.append(corpus[idx + t])
     end
     contexts.append(cs)
@@ -139,12 +141,12 @@ def ppmi(c, verbose: false, eps: 1e-8)
 
   c.shape[0].times do |i|
     c.shape[1].times do |j|
-      pmi = Math.log2(c[i,j] * n / (s[i] * s[j] + eps))
+      pmi = Math.log2(c[i, j] * n / (s[i] * s[j] + eps))
       ppmi[i, j] = [0.0, pmi].max
 
       if verbose
         count += 1
-        if count % (total.to_f / 100) == 0
+        if (count % (total.to_f / 100)).zero?
           printf("%.1f%% done\n", 100 * count / total)
         end
       end
@@ -223,16 +225,14 @@ end
 # @param max_norm [Float] Maximum gradient.
 def clip_grads(grads, max_norm)
   total_norm = grads.reduce(0) do |total, grad|
-    total + (grad ** 2).sum
+    total + (grad**2).sum
   end
 
   total_norm = Numo::DFloat::Math.sqrt(total_norm)
 
   rate = max_norm / (total_norm + 1e-6)
 
-  if rate < 1
-    grads.each { |grad| grad.inplace * rate }
-  end
+  grads.each { |grad| grad.inplace * rate } if rate < 1
 end
 
 def eval_perplexity(model, corpus, batch_size: 10, time_size: 35)
@@ -322,10 +322,10 @@ end
 # @return [Numo::NArray] The normalized 1 dimention result.
 def normalize(x)
   if x.ndim == 2
-    s = Numo::DFloat::Math.sqrt((x ** 2).sum(axis: 1))
+    s = Numo::DFloat::Math.sqrt((x**2).sum(axis: 1))
     x / s.reshape(s.shape[0], 1)
   elsif x.ndim == 1
-    s = Numo::DFloat::Math.sqrt((x ** 2).sum)
+    s = Numo::DFloat::Math.sqrt((x**2).sum)
     x / s
   end
 end
