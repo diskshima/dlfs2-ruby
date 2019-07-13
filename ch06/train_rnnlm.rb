@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../common/dataset'
 require_relative '../common/optimizer'
-require_relative './rnnl'
+require_relative '../common/trainer'
+require_relative '../dataset/ptb'
+require_relative './rnnlm'
 
 batch_size = 20
 wordvec_size = 100

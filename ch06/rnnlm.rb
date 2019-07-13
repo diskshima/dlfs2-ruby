@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'numo/narray'
-require_relative './base_model'
+require_relative '../common/base_model'
+require_relative '../common/time_layers'
 
-class RnnLm < BaseModel
+class Rnnlm < BaseModel
   attr_accessor :params, :grad
 
   def initialize(vocab_size = 10_000, wordvec_size = 100, hidden_size = 100)

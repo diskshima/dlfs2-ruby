@@ -178,7 +178,7 @@ class LSTM
     @grads[1][] = dwh
     @grads[2][] = db
 
-    dx = da.dot(wx.tranpose)
+    dx = da.dot(wx.transpose)
     dh_prev = da.dot(wh.transpose)
 
     [dx, dh_prev, dc_prev]
@@ -222,6 +222,8 @@ class TimeLSTM
 
       @layers.append(layer)
     end
+
+    hs
   end
 
   def backward(dhs)
@@ -235,17 +237,17 @@ class TimeLSTM
 
     grads = [0, 0, 0]
 
-    T.times.reverse_each do |ti|
+    t.times.reverse_each do |ti|
       layer = @layers[ti]
-      dx, dh, dc = layer.backward(dhs[true, t, true] + dh, dc)
-      dxs[true, t, true] = dx
+      dx, dh, dc = layer.backward(dhs[true, ti, true] + dh, dc)
+      dxs[true, ti, true] = dx
       layer.grads.each_with_index do |grad, i|
         grads[i] += grad
       end
     end
 
     grads.each_with_index do |grad, i|
-      @grads[ti][] = grad
+      @grads[i][] = grad
     end
     @dh = dh
     dxs
