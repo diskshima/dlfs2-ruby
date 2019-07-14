@@ -398,7 +398,7 @@ end
 
 # Dropout
 class TimeDropout
-  attr_accessor :params, :grads
+  attr_accessor :params, :grads, :train_flg
 
   def initialize(dropout_ratio = 0.5)
     @params = []
@@ -410,7 +410,7 @@ class TimeDropout
 
   def forward(xs)
     if @train_flg
-      flg = Numo::DFloat.new_like(xs).rand > @dropout_ratio
+      flg = Numo::DFloat.cast(Numo::DFloat.new_like(xs).rand > @dropout_ratio)
       scale = 1.0 / (1.0 - @dropout_ratio)
       @mask = flg * scale
       xs * @mask
