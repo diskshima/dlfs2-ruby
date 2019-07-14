@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'numo/narray'
 require_relative 'functions'
 require_relative 'layers'
@@ -110,6 +112,155 @@ class TimeRNN
 
   def reset_state
     @h = nil
+  end
+end
+
+class LSTM
+  attr_accessor :params, :grads
+
+  def initialize(wx, wh, b)
+    @params = [wx, wh, b]
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
+              Numo::DFloat.zeros(b.shape)]
+    @cache = nil
+  end
+
+  def forward(x, h_prev, c_prev)
+    wx, wh, b = @params
+    n, h = h_prev.shape
+
+    a = x.dot(wx) + h_prev.dot(wh) + b
+
+    f = a[true, (0...h).to_a]
+    g = a[true, (h...2*h).to_a]
+    i = a[true, (2*h...3*h).to_a]
+    o = a[true, (3*h...4*h).to_a]
+
+    f = sigmoid(f)
+    g = Numo::DFloat::Math.tanh(g)
+    i = sigmoid(i)
+    o = sigmoid(o)
+
+    c_next = f * c_prev + g * i
+    h_next = o * Numo::DFloat::Math.tanh(c_next)
+
+    @cache = [x, h_prev, c_prev, i, f, g, o, c_next]
+    [h_next, c_next]
+  end
+
+  def backward(dh_next, dc_next)
+    wx, wh, b = @params
+    x, h_prev, c_prev, i, f, g, o, c_next = @cache
+
+    tanh_c_next = Numo::DFloat::Math.tanh(c_next)
+
+    ds = dc_next + (dh_next * o) * (1 - tanh_c_next ** 2)
+
+    dc_prev = ds * f
+
+    di = ds * g
+    df = ds * c_prev
+    dou = dh_next * tanh_c_next
+    dg = ds * i
+
+    di.inplace * (i * (1 - i))
+    df.inplace * (f * (1 - f))
+    dou.inplace * (o * (1 - o))
+    dg.inplace * (1 - g ** 2)
+
+    da = Numo::NArray.hstack([df, dg, di, dou])
+
+    dwh = h_prev.transpose.dot(da)
+    dwx = x.transpose.dot(da)
+    db = da.sum(axis: 0)
+
+    @grads[0][] = dwx
+    @grads[1][] = dwh
+    @grads[2][] = db
+
+    dx = da.dot(wx.transpose)
+    dh_prev = da.dot(wh.transpose)
+
+    [dx, dh_prev, dc_prev]
+  end
+end
+
+class TimeLSTM
+  attr_accessor :params, :grads
+  def initialize(wx, wh, b, stateful = false)
+    @params = [wx, wh, b]
+    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
+              Numo::DFloat.zeros(b.shape)]
+    @layers = nil
+
+    @h = nil
+    @c = nil
+    @dh = nil
+    @stateful = stateful
+  end
+
+  def forward(xs)
+    wx, wh, b = @params
+    n, t, d = xs.shape
+    h = wh.shape[0]
+
+    @layers = []
+    hs = Numo::DFloat.zeros(n, t, h)
+
+    if !@stateful || !@h
+      @h = Numo::DFloat.zeros(n, h)
+    end
+
+    if !@stateful || !@c
+      @c = Numo::DFloat.zeros(n, h)
+    end
+
+    t.times do |ti|
+      layer = LSTM.new(*@params)
+      @h, @c = layer.forward(xs[true, ti, true], @h, @c)
+      hs[true, ti, true] = @h
+
+      @layers.append(layer)
+    end
+
+    hs
+  end
+
+  def backward(dhs)
+    wx, wh, b = @params
+    n, t, h = dhs.shape
+    d = wx.shape[0]
+
+    dxs = Numo::DFloat.zeros(n, t, d)
+    dh = 0
+    dc = 0
+
+    grads = [0, 0, 0]
+
+    t.times.reverse_each do |ti|
+      layer = @layers[ti]
+      dx, dh, dc = layer.backward(dhs[true, ti, true] + dh, dc)
+      dxs[true, ti, true] = dx
+      layer.grads.each_with_index do |grad, i|
+        grads[i] += grad
+      end
+    end
+
+    grads.each_with_index do |grad, i|
+      @grads[i][] = grad
+    end
+    @dh = dh
+    dxs
+  end
+
+  def set_state(h, c = nil)
+    @h = h
+    @c = c
+  end
+
+  def reset_state
+    @h = nil
+    @c = nil
   end
 end
 
@@ -237,10 +388,38 @@ class TimeSoftmaxWithLoss
     full_idxs = paired_access_idxs(dx, Numo::UInt32.new(n * t).seq, ts)
     dx[full_idxs] -= 1
     dx *= dout
-    dx /= mask.sum()
+    dx /= mask.sum
     dx *= mask[false, :new]
 
     dx = dx.reshape(n, t, v)
     dx
+  end
+end
+
+# Dropout
+class TimeDropout
+  attr_accessor :params, :grads, :train_flg
+
+  def initialize(dropout_ratio = 0.5)
+    @params = []
+    @grads = []
+    @dropout_ratio = dropout_ratio
+    @mask = nil
+    @train_flg = true
+  end
+
+  def forward(xs)
+    if @train_flg
+      flg = Numo::DFloat.cast(Numo::DFloat.new_like(xs).rand > @dropout_ratio)
+      scale = 1.0 / (1.0 - @dropout_ratio)
+      @mask = flg * scale
+      xs * @mask
+    else
+      xs
+    end
+  end
+
+  def backward(dout)
+    dout * @mask
   end
 end

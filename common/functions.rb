@@ -1,4 +1,14 @@
+# frozen_string_literal: true
+
 require 'numo/narray'
+
+# Returns the sigmoid of `x`.
+#
+# @param x [Numo::NArray] Matrix.
+# @return [Numo::NArray] Sigmoid.
+def sigmoid(x)
+  1.0 / (1.0 + Numo::DFloat::Math.exp(-x))
+end
 
 # Returns the softmax of the given matrix.
 #

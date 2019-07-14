@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gnuplot'
 require 'numo/narray'
 require_relative 'functions'
@@ -13,7 +15,7 @@ def remove_duplicates(params, grads)
     param_count = params.length
 
     param_count.times do |i|
-      (i+1...param_count).each do |j|
+      ((i + 1)...param_count).each do |j|
         if params[i].object_id == params[j].object_id
           grads[i] += grads[j]
           found = true
@@ -65,12 +67,12 @@ class Trainer
       t = get_at_dim_index(t, 0, idx)
 
       max_iters.times do |iters|
-        batches = iters * batch_size...(iters+1) * batch_size
+        batches = iters * batch_size...(iters + 1) * batch_size
         batch_x = get_at_dim_index(x, 0, batches)
         batch_t = get_at_dim_index(t, 0, batches)
 
         loss = model.forward(batch_x, batch_t)
-        model.backward()
+        model.backward
         params, grads = remove_duplicates(model.params, model.grads)
 
         clip_grads(grads, max_grad) if max_grad
@@ -83,7 +85,8 @@ class Trainer
           avg_loss = total_loss / loss_count
           elapsed_time = Time.now - start_time
           printf("| epoch %d | iter %d / %d | time %d[ms] | loss %.8f\n",
-                 epoch + 1, iters + 1, max_iters, elapsed_time * 1_000, avg_loss)
+                 epoch + 1, iters + 1, max_iters, elapsed_time * 1_000,
+                 avg_loss)
           @loss_list.append(avg_loss)
           total_loss = 0
           loss_count = 0
@@ -101,7 +104,6 @@ class Trainer
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new(gp) do |plot|
-
         plot.set(:yrange, ylim) if ylim
         plot.set(:key, 'box right top')
         plot.xlabel("iterations (x#{eval_interval})")
@@ -147,7 +149,7 @@ class RnnlmTrainer
   end
 
   def fit(xs, ts, max_epoch = 10, batch_size = 20, time_size = 35,
-          max_grad = nil, eval_interval = 20)
+          max_grad = nil, eval_interval: 20)
     data_size = xs.length
     max_iters = data_size / (batch_size * time_size)
     @time_idx = 0
@@ -159,7 +161,7 @@ class RnnlmTrainer
     loss_count = 0
 
     start_time = Time.now
-    max_epoch.times do |epoch|
+    max_epoch.times do |_epoch|
       max_iters.times do |iters|
         batch_x, batch_t = get_batch(xs, ts, batch_size, time_size)
 
@@ -173,9 +175,9 @@ class RnnlmTrainer
         total_loss += loss
         loss_count += 1
 
-        if eval_interval && (iters % eval_interval) == 0
+        if eval_interval && (iters % eval_interval).zero?
           ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
-          elapsed_time = Time.now
+          elapsed_time = (Time.now - start_time) * 1000.0
           printf("| epoch %d | iter %d / %d | time %d[ms] | perplexity %.2f\n",
                  @current_epoch + 1, iters + 1, max_iters, elapsed_time, ppl)
           @ppl_list.append(ppl.to_f)

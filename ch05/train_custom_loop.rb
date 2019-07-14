@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gnuplot'
 require 'numo/narray'
 require_relative '../common/optimizer'
