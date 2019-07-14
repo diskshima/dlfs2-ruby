@@ -7,11 +7,11 @@ require_relative '../dataset/ptb'
 require_relative './better_rnnlm'
 
 batch_size = 20
-wordvec_size = 100
-hidden_size = 100
+wordvec_size = 650
+hidden_size = 650
 time_size = 35
 lr = 20.0
-max_epoch = 4
+max_epoch = 40
 max_grad = 0.25
 dropout = 0.5
 
