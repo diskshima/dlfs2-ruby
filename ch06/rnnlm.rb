@@ -5,7 +5,7 @@ require_relative '../common/base_model'
 require_relative '../common/time_layers'
 
 class Rnnlm < BaseModel
-  attr_accessor :params, :grad
+  attr_accessor :params, :grads
 
   def initialize(vocab_size = 10_000, wordvec_size = 100, hidden_size = 100)
     v = vocab_size

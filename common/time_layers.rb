@@ -395,3 +395,31 @@ class TimeSoftmaxWithLoss
     dx
   end
 end
+
+# Dropout
+class TimeDropout
+  attr_accessor :params, :grads
+
+  def initialize(dropout_ratio = 0.5)
+    @params = []
+    @grads = []
+    @dropout_ratio = dropout_ratio
+    @mask = nil
+    @train_flg = true
+  end
+
+  def forward(xs)
+    if @train_flg
+      flg = Numo::DFloat.new_like(xs).rand > @dropout_ratio
+      scale = 1.0 / (1.0 - @dropout_ratio)
+      @mask = flg * scale
+      xs * @mask
+    else
+      xs
+    end
+  end
+
+  def backward(dout)
+    dout * @mask
+  end
+end
