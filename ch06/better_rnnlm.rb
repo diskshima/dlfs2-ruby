@@ -8,7 +8,7 @@ require_relative '../common/time_layers'
 class BetterRnnlm < BaseModel
   attr_accessor :params, :grads
 
-  def initialize(vocab_size = 10_00, wordvec_size = 100, hidden_size = 650,
+  def initialize(vocab_size = 10_000, wordvec_size = 650, hidden_size = 650,
                  dropout_ratio = 0.5)
     v, d, h = vocab_size, wordvec_size, hidden_size
     rn = ->(r, c) { Numo::DFloat.new(r, c).rand_norm }

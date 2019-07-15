@@ -177,8 +177,8 @@ class RnnlmTrainer
 
         if eval_interval && (iters % eval_interval).zero?
           ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
-          elapsed_time = (Time.now - start_time) * 1000.0
-          printf("| epoch %d | iter %d / %d | time %d[ms] | perplexity %.2f\n",
+          elapsed_time = Time.now - start_time
+          printf("| epoch %d | iter %d / %d | time %d[s] | perplexity %.2f\n",
                  @current_epoch + 1, iters + 1, max_iters, elapsed_time, ppl)
           @ppl_list.append(ppl.to_f)
           total_loss = 0
