@@ -44,7 +44,7 @@ class UnigramSampler
     vocab_size = counts.length
     @vocab_size = vocab_size
 
-    @word_p = Numo::DFloat.zeros(vocab_size)
+    @word_p = Numo::SFloat.zeros(vocab_size)
 
     vocab_size.times do |i|
       @word_p[i] = counts[i]

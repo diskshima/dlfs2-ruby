@@ -4,10 +4,10 @@ class TwoLayerNet
   attr_accessor :params, :grads
 
   def initialize(input_size, hidden_size, output_size)
-    w1 = 0.01 * Numo::DFloat.new(input_size, hidden_size).rand_norm
-    b1 = Numo::DFloat.zeros(hidden_size)
-    w2 = 0.01 * Numo::DFloat.new(hidden_size, output_size).rand_norm
-    b2 = Numo::DFloat.zeros(output_size)
+    w1 = 0.01 * Numo::SFloat.new(input_size, hidden_size).rand_norm
+    b1 = Numo::SFloat.zeros(hidden_size)
+    w2 = 0.01 * Numo::SFloat.new(hidden_size, output_size).rand_norm
+    b2 = Numo::SFloat.zeros(output_size)
 
     @layers = [
       Affine.new(w1, b1),
@@ -43,7 +43,7 @@ end
 
 if __FILE__ == $0
   Numo::NArray.srand
-  x = Numo::DFloat.new(10, 2).rand(42)
+  x = Numo::SFloat.new(10, 2).rand(42)
   p x
   model = TwoLayerNet.new(2, 4, 3)
   p model.predict(x)

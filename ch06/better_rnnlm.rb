@@ -11,16 +11,16 @@ class BetterRnnlm < BaseModel
   def initialize(vocab_size = 10_000, wordvec_size = 650, hidden_size = 650,
                  dropout_ratio = 0.5)
     v, d, h = vocab_size, wordvec_size, hidden_size
-    rn = ->(r, c) { Numo::DFloat.new(r, c).rand_norm }
+    rn = ->(r, c) { Numo::SFloat.new(r, c).rand_norm }
 
     embed_w = rn.call(v, d) / 100
-    lstm_wx1 = rn.call(d, 4 * h) / Numo::DFloat::Math.sqrt(d)
-    lstm_wh1 = rn.call(h, 4 * h) / Numo::DFloat::Math.sqrt(h)
-    lstm_b1 = Numo::DFloat.zeros(4 * h)
-    lstm_wx2 = rn.call(h, 4 * h) / Numo::DFloat::Math.sqrt(d)
-    lstm_wh2 = rn.call(h, 4 * h) / Numo::DFloat::Math.sqrt(h)
-    lstm_b2 = Numo::DFloat.zeros(4 * h)
-    affine_b = Numo::DFloat.zeros(v)
+    lstm_wx1 = rn.call(d, 4 * h) / Numo::SFloat::Math.sqrt(d)
+    lstm_wh1 = rn.call(h, 4 * h) / Numo::SFloat::Math.sqrt(h)
+    lstm_b1 = Numo::SFloat.zeros(4 * h)
+    lstm_wx2 = rn.call(h, 4 * h) / Numo::SFloat::Math.sqrt(d)
+    lstm_wh2 = rn.call(h, 4 * h) / Numo::SFloat::Math.sqrt(h)
+    lstm_b2 = Numo::SFloat.zeros(4 * h)
+    affine_b = Numo::SFloat.zeros(v)
 
     @layers = [
       TimeEmbedding.new(embed_w),

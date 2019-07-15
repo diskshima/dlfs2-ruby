@@ -9,8 +9,8 @@ class CBOW
     v = vocab_size
     h = hidden_size
 
-    w_in = 0.01 * Numo::DFloat.new(v, h).rand_norm
-    w_out = 0.01 * Numo::DFloat.new(v, h).rand_norm
+    w_in = 0.01 * Numo::SFloat.new(v, h).rand_norm
+    w_out = 0.01 * Numo::SFloat.new(v, h).rand_norm
 
     @in_layers = []
     (2 * window_size).times do |i|

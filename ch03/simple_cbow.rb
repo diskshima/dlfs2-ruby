@@ -9,8 +9,8 @@ class SimpleCBOW
     v = vocab_size
     h = hidden_size
 
-    w_in = 0.01 * Numo::DFloat.new(v, h).rand_norm
-    w_out = 0.01 * Numo::DFloat.new(h, v).rand_norm
+    w_in = 0.01 * Numo::SFloat.new(v, h).rand_norm
+    w_out = 0.01 * Numo::SFloat.new(h, v).rand_norm
 
     @in_layer0 = MatMul.new(w_in)
     @in_layer1 = MatMul.new(w_in)

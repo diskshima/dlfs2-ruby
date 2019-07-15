@@ -7,10 +7,10 @@ N = 2
 H = 3
 T = 50
 
-dh = Numo::DFloat.ones(N, H)
+dh = Numo::SFloat.ones(N, H)
 
-wh = Numo::DFloat.new(H, H).rand_norm
-# wh = Numo::DFloat.new(H, H).rand_norm * 0.35
+wh = Numo::SFloat.new(H, H).rand_norm
+# wh = Numo::SFloat.new(H, H).rand_norm * 0.35
 
 norm_list = []
 T.times do

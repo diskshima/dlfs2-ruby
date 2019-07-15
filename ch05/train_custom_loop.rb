@@ -57,7 +57,7 @@ max_epoch.times do |epoch|
     loss_count += 1
   end
 
-  ppl = Numo::DFloat::Math.exp(total_loss / loss_count)
+  ppl = Numo::SFloat::Math.exp(total_loss / loss_count)
   printf("| epoch %d | perplexity %.2f\n", epoch + 1, ppl)
   ppl_list.append(ppl.to_f)
   total_loss = 0

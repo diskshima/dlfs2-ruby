@@ -29,19 +29,19 @@ class Adam
       @m = []
       @v = []
       params.each do |param|
-        @m.append(Numo::DFloat.zeros(param.shape))
-        @v.append(Numo::DFloat.zeros(param.shape))
+        @m.append(Numo::SFloat.zeros(param.shape))
+        @v.append(Numo::SFloat.zeros(param.shape))
       end
     end
 
     @iter += 1
-    lr_t = @lr * Numo::DFloat::Math.sqrt(1.0 - @beta2**@iter) / (1.0 - @beta1**@iter)
+    lr_t = @lr * Numo::SFloat::Math.sqrt(1.0 - @beta2**@iter) / (1.0 - @beta1**@iter)
 
     params.length.times do |i|
       @m[i] += (1 - @beta1) * (grads[i] - @m[i])
       @v[i] += (1 - @beta2) * (grads[i]**2 - @v[i])
 
-      params[i].inplace - lr_t * @m[i] / (Numo::DFloat::Math.sqrt(@v[i]) + 1e-7)
+      params[i].inplace - lr_t * @m[i] / (Numo::SFloat::Math.sqrt(@v[i]) + 1e-7)
     end
   end
 end
