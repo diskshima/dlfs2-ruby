@@ -4,8 +4,8 @@ class SimpleSkipGram
   attr_accessor :params, :grads, :word_vecs
 
   def initialize(vocab_size, hidden_size)
-    w_in = 0.01 * Numo::DFloat.new(vocab_size, hidden_size).rand_norm
-    w_out = 0.01 * Numo::DFloat.new(hidden_size, vocab_size).rand_norm
+    w_in = 0.01 * Numo::SFloat.new(vocab_size, hidden_size).rand_norm
+    w_out = 0.01 * Numo::SFloat.new(hidden_size, vocab_size).rand_norm
 
     @in_layer = MatMul.new(w_in)
     @out_layer = MatMul.new(w_out)

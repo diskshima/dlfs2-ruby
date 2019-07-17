@@ -27,7 +27,7 @@ model = BetterRnnlm.new(vocab_size, wordvec_size, hidden_size, dropout)
 optimizer = SGD.new(lr)
 trainer = RnnlmTrainer.new(model, optimizer)
 
-best_ppl = Numo::DFloat::MAX
+best_ppl = Numo::SFloat::MAX
 max_epoch.times do |_epoch|
   trainer.fit(xs, ts, 1, batch_size, time_size, max_grad)
 

@@ -11,14 +11,14 @@ class Rnnlm < BaseModel
     v = vocab_size
     d = wordvec_size
     h = hidden_size
-    rn = ->(r, c) { Numo::DFloat.new(r, c).rand_norm }
+    rn = ->(r, c) { Numo::SFloat.new(r, c).rand_norm }
 
     embed_w = rn.call(v, d) / 100
-    lstm_wx = rn.call(d, 4 * h) / Numo::DFloat::Math.sqrt(d)
-    lstm_wh = rn.call(h, 4 * h) / Numo::DFloat::Math.sqrt(h)
-    lstm_b = Numo::DFloat.zeros(4 * h)
-    affine_w = rn.call(h, v) / Numo::DFloat::Math.sqrt(h)
-    affine_b = Numo::DFloat.zeros(v)
+    lstm_wx = rn.call(d, 4 * h) / Numo::SFloat::Math.sqrt(d)
+    lstm_wh = rn.call(h, 4 * h) / Numo::SFloat::Math.sqrt(h)
+    lstm_b = Numo::SFloat.zeros(4 * h)
+    affine_w = rn.call(h, v) / Numo::SFloat::Math.sqrt(h)
+    affine_b = Numo::SFloat.zeros(v)
 
     @layers = [
       TimeEmbedding.new(embed_w),

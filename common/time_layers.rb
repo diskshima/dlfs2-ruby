@@ -9,15 +9,15 @@ class RNN
 
   def initialize(wx, wh, b)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
-              Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(wx.shape), Numo::SFloat.zeros(wh.shape),
+              Numo::SFloat.zeros(b.shape)]
     @cache = nil
   end
 
   def forward(x, h_prev)
     wx, wh, b = @params
     t = h_prev.dot(wh) + x.dot(wx) + b
-    h_next = Numo::DFloat::Math.tanh(t)
+    h_next = Numo::SFloat::Math.tanh(t)
 
     @cache = [x, h_prev, h_next]
     h_next
@@ -47,8 +47,8 @@ class TimeRNN
 
   def initialize(wx, wh, b, stateful: false)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
-              Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(wx.shape), Numo::SFloat.zeros(wh.shape),
+              Numo::SFloat.zeros(b.shape)]
     @layers = nil
 
     @h = nil
@@ -62,10 +62,10 @@ class TimeRNN
     d, h = wx.shape
 
     @layers = []
-    hs = Numo::DFloat.zeros(n, t, h)
+    hs = Numo::SFloat.zeros(n, t, h)
 
     if !@stateful || !@h
-      @h = Numo::DFloat.zeros(n, h)
+      @h = Numo::SFloat.zeros(n, h)
     end
 
     t.times do |ti|
@@ -83,7 +83,7 @@ class TimeRNN
     n, t, h = dhs.shape
     d, h = wx.shape
 
-    dxs = Numo::DFloat.zeros(n, t, d)
+    dxs = Numo::SFloat.zeros(n, t, d)
     dh = 0
     grads = [0, 0, 0]
     t.times.reverse_each do |ti|
@@ -120,8 +120,8 @@ class LSTM
 
   def initialize(wx, wh, b)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
-              Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(wx.shape), Numo::SFloat.zeros(wh.shape),
+              Numo::SFloat.zeros(b.shape)]
     @cache = nil
   end
 
@@ -137,12 +137,12 @@ class LSTM
     o = a[true, (3*h...4*h).to_a]
 
     f = sigmoid(f)
-    g = Numo::DFloat::Math.tanh(g)
+    g = Numo::SFloat::Math.tanh(g)
     i = sigmoid(i)
     o = sigmoid(o)
 
     c_next = f * c_prev + g * i
-    h_next = o * Numo::DFloat::Math.tanh(c_next)
+    h_next = o * Numo::SFloat::Math.tanh(c_next)
 
     @cache = [x, h_prev, c_prev, i, f, g, o, c_next]
     [h_next, c_next]
@@ -152,7 +152,7 @@ class LSTM
     wx, wh, b = @params
     x, h_prev, c_prev, i, f, g, o, c_next = @cache
 
-    tanh_c_next = Numo::DFloat::Math.tanh(c_next)
+    tanh_c_next = Numo::SFloat::Math.tanh(c_next)
 
     ds = dc_next + (dh_next * o) * (1 - tanh_c_next ** 2)
 
@@ -189,8 +189,8 @@ class TimeLSTM
   attr_accessor :params, :grads
   def initialize(wx, wh, b, stateful = false)
     @params = [wx, wh, b]
-    @grads = [Numo::DFloat.zeros(wx.shape), Numo::DFloat.zeros(wh.shape),
-              Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(wx.shape), Numo::SFloat.zeros(wh.shape),
+              Numo::SFloat.zeros(b.shape)]
     @layers = nil
 
     @h = nil
@@ -205,14 +205,14 @@ class TimeLSTM
     h = wh.shape[0]
 
     @layers = []
-    hs = Numo::DFloat.zeros(n, t, h)
+    hs = Numo::SFloat.zeros(n, t, h)
 
     if !@stateful || !@h
-      @h = Numo::DFloat.zeros(n, h)
+      @h = Numo::SFloat.zeros(n, h)
     end
 
     if !@stateful || !@c
-      @c = Numo::DFloat.zeros(n, h)
+      @c = Numo::SFloat.zeros(n, h)
     end
 
     t.times do |ti|
@@ -231,7 +231,7 @@ class TimeLSTM
     n, t, h = dhs.shape
     d = wx.shape[0]
 
-    dxs = Numo::DFloat.zeros(n, t, d)
+    dxs = Numo::SFloat.zeros(n, t, d)
     dh = 0
     dc = 0
 
@@ -269,7 +269,7 @@ class TimeEmbedding
 
   def initialize(w)
     @params = [w]
-    @grads = [Numo::DFloat.zeros(w.shape)]
+    @grads = [Numo::SFloat.zeros(w.shape)]
     @layers = nil
     @w = w
   end
@@ -278,7 +278,7 @@ class TimeEmbedding
     n, t = xs.shape
     v, d = @w.shape
 
-    out = Numo::DFloat.zeros(n, t, d)
+    out = Numo::SFloat.zeros(n, t, d)
     @layers = []
 
     t.times do |ti|
@@ -310,7 +310,7 @@ class TimeAffine
 
   def initialize(w, b)
     @params = [w, b]
-    @grads = [Numo::DFloat.zeros(w.shape), Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(w.shape), Numo::SFloat.zeros(b.shape)]
     @x = nil
   end
 
@@ -371,7 +371,7 @@ class TimeSoftmaxWithLoss
     mask = mask.reshape(n * t)
 
     ys = softmax(xs)
-    ls = Numo::DFloat::Math.log(paired_access(ys, Numo::UInt32.new(n * t).seq, ts))
+    ls = Numo::SFloat::Math.log(paired_access(ys, Numo::UInt32.new(n * t).seq, ts))
     ls *= mask
     loss = -ls.sum
     loss /= mask.sum
@@ -410,7 +410,7 @@ class TimeDropout
 
   def forward(xs)
     if @train_flg
-      flg = Numo::DFloat.cast(Numo::DFloat.new_like(xs).rand > @dropout_ratio)
+      flg = Numo::SFloat.cast(Numo::SFloat.new_like(xs).rand > @dropout_ratio)
       scale = 1.0 / (1.0 - @dropout_ratio)
       @mask = flg * scale
       xs * @mask

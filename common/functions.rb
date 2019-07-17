@@ -7,7 +7,7 @@ require 'numo/narray'
 # @param x [Numo::NArray] Matrix.
 # @return [Numo::NArray] Sigmoid.
 def sigmoid(x)
-  1.0 / (1.0 + Numo::DFloat::Math.exp(-x))
+  1.0 / (1.0 + Numo::SFloat::Math.exp(-x))
 end
 
 # Returns the softmax of the given matrix.
@@ -19,11 +19,11 @@ def softmax(x)
 
   if ndim == 2
     x2 = x - x.max(axis: 1).expand_dims(1)
-    exp = Numo::DFloat::Math.exp(x2)
+    exp = Numo::SFloat::Math.exp(x2)
     return exp / exp.sum(axis: 1).expand_dims(1)
   elsif ndim == 1
     x2 = x - x.max
-    exp = Numo::DFloat::Math.exp(x2)
+    exp = Numo::SFloat::Math.exp(x2)
     return exp / exp.sum
   end
 end
@@ -50,7 +50,7 @@ def cross_entropy_error(y, t)
   batch_size = y.shape[0]
 
   idxs = to_full_index(t, y.shape[1])
-  -Numo::DFloat::Math.log(y[idxs] + 1e-7).sum / batch_size
+  -Numo::SFloat::Math.log(y[idxs] + 1e-7).sum / batch_size
 end
 
 # Converts `t`-th class notation to its index in a Numo::NArray.

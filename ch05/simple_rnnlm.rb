@@ -6,14 +6,14 @@ class SimpleRnnlm
 
   def initialize(vocab_size, wordvec_size, hidden_size)
     v, d, h = vocab_size, wordvec_size, hidden_size
-    rn = ->(r, c) { Numo::DFloat.new(r, c).rand_norm }
+    rn = ->(r, c) { Numo::SFloat.new(r, c).rand_norm }
 
     embed_w = rn.call(v, d) / 100
-    rnn_wx = rn.call(d, h)/ Numo::DFloat::Math.sqrt(d)
-    rnn_wh = rn.call(h, h) / Numo::DFloat::Math.sqrt(h)
-    rnn_b = Numo::DFloat.zeros(h)
-    affine_w = rn.call(h, v) / Numo::DFloat::Math.sqrt(h)
-    affine_b = Numo::DFloat.zeros(v)
+    rnn_wx = rn.call(d, h)/ Numo::SFloat::Math.sqrt(d)
+    rnn_wh = rn.call(h, h) / Numo::SFloat::Math.sqrt(h)
+    rnn_b = Numo::SFloat.zeros(h)
+    affine_w = rn.call(h, v) / Numo::SFloat::Math.sqrt(h)
+    affine_b = Numo::SFloat.zeros(v)
 
     @layers = [
       TimeEmbedding.new(embed_w),

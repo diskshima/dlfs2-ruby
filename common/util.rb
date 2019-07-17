@@ -36,8 +36,8 @@ end
 # @param eps [Float] Epsilon to prevent divide by zero errors.
 # @return [Float] Cosine similarity.
 def cos_similarity(x, y, eps: 1e-8)
-  nx = x / (Numo::DFloat::Math.sqrt((x**2).sum) + eps)
-  ny = y / (Numo::DFloat::Math.sqrt((y**2).sum) + eps)
+  nx = x / (Numo::SFloat::Math.sqrt((x**2).sum) + eps)
+  ny = y / (Numo::SFloat::Math.sqrt((y**2).sum) + eps)
   nx.dot(ny)
 end
 
@@ -131,9 +131,9 @@ end
 # @param c [Numo::UInt32] Co-occurence matrix.
 # @param verbose [Boolean] Verbose output.
 # @param eps [Float] Epsilon to prevent divide by zero errors.
-# @return [Numo::DFloat] PPMI matrix
+# @return [Numo::SFloat] PPMI matrix
 def ppmi(c, verbose: false, eps: 1e-8)
-  ppmi = Numo::DFloat.zeros(c.shape)
+  ppmi = Numo::SFloat.zeros(c.shape)
   n = c.sum
   s = c.sum(axis: 1)
   total = c.size
@@ -201,7 +201,7 @@ end
 #
 # @param a [Numo::NArray] Input matrix
 # @param k [Integer] Number of vectors to calculate.
-# @return [Array<Numo::DFloat, Numo::DFloat, Numo::DFloat>]
+# @return [Array<Numo::SFloat, Numo::SFloat, Numo::SFloat>]
 #   Sigma (singular values), left-singular vector, right-singular vector transposed.
 def svd(a, k)
   n_rows, = a.shape
@@ -221,14 +221,14 @@ end
 # Applies gradient clipping.
 # This applies in-place.
 #
-# @param grads [Array<Numo::DFloat>] Array of gradients.
+# @param grads [Array<Numo::SFloat>] Array of gradients.
 # @param max_norm [Float] Maximum gradient.
 def clip_grads(grads, max_norm)
   total_norm = grads.reduce(0) do |total, grad|
     total + (grad**2).sum
   end
 
-  total_norm = Numo::DFloat::Math.sqrt(total_norm)
+  total_norm = Numo::SFloat::Math.sqrt(total_norm)
 
   rate = max_norm / (total_norm + 1e-6)
 
@@ -322,10 +322,10 @@ end
 # @return [Numo::NArray] The normalized 1 dimention result.
 def normalize(x)
   if x.ndim == 2
-    s = Numo::DFloat::Math.sqrt((x**2).sum(axis: 1))
+    s = Numo::SFloat::Math.sqrt((x**2).sum(axis: 1))
     x / s.reshape(s.shape[0], 1)
   elsif x.ndim == 1
-    s = Numo::DFloat::Math.sqrt((x**2).sum)
+    s = Numo::SFloat::Math.sqrt((x**2).sum)
     x / s
   end
 end

@@ -2,8 +2,8 @@
 
 require 'numo/narray'
 
-dw1 = Numo::DFloat.new(3, 3).rand * 10
-dw2 = Numo::DFloat.new(3, 3).rand * 10
+dw1 = Numo::SFloat.new(3, 3).rand * 10
+dw2 = Numo::SFloat.new(3, 3).rand * 10
 grads = [dw1, dw2]
 max_norm = 5.0
 

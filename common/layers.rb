@@ -6,7 +6,7 @@ class MatMul
 
   def initialize(w)
     @params = [w]
-    @grads = [Numo::DFloat.zeros(w.shape)]
+    @grads = [Numo::SFloat.zeros(w.shape)]
     @x = nil
   end
 
@@ -31,7 +31,7 @@ class Affine
 
   def initialize(w, b)
     @params = [w, b]
-    @grads = [Numo::DFloat.zeros(w.shape), Numo::DFloat.zeros(b.shape)]
+    @grads = [Numo::SFloat.zeros(w.shape), Numo::SFloat.zeros(b.shape)]
     @x = nil
   end
 
@@ -65,7 +65,7 @@ class Sigmoid
   end
 
   def forward(x)
-    @out = 1.0 / (1 + Numo::DFloat::Math.exp(-x))
+    @out = 1.0 / (1 + Numo::SFloat::Math.exp(-x))
     @out
   end
 
@@ -88,7 +88,7 @@ class SigmoidWithLoss
 
   def forward(x, t)
     @t = t
-    @y = 1.0 / (1 + Numo::DFloat::Math.exp(-x))
+    @y = 1.0 / (1 + Numo::SFloat::Math.exp(-x))
 
     @loss = cross_entropy_error(Numo::NArray.column_stack([1 - @y, @y]), @t)
     @loss
@@ -139,7 +139,7 @@ class Embedding
 
   def initialize(w)
     @params = [w]
-    @grads = [Numo::DFloat.zeros(w.shape)]
+    @grads = [Numo::SFloat.zeros(w.shape)]
     @idx = nil
   end
 
