@@ -16,9 +16,9 @@ class RnnlmGen < Rnnlm
       p = softmax(score.flatten)
 
       sampled = random_choice(p.length, size: 1, p: p)
-      if !skip_ids || skip_ids.include?(sampled)
+      if !skip_ids || !skip_ids.include?(sampled)
         x = sampled
-        word_ids.append(x.to_i)
+        word_ids.append(x[0])
       end
     end
 
