@@ -46,8 +46,12 @@ def rws_heap_pop(h)
   v
 end
 
-def random_weighted_sample_no_replacement(items, n)
+def random_weighted_sample_no_replacement(a, n, p)
+  array = a.class == Integer ? (0...a).to_a : a
+  items = array.zip(p)
+
   heap = rws_heap(items)
+
   n.times do
     yield rws_heap_pop(heap)
   end
