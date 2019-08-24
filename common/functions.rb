@@ -123,28 +123,3 @@ def paired_access_idxs(x, idxs1, idxs2)
 
   full_idxs
 end
-
-# Choose `size` (default: 1) numbers of elements from `a` with the given
-# probability (defaults to equal probability).
-# `a` can either be an array or Integer in which case it will be treated as
-# `(0...a).to_a`.
-#
-# Implementation is based on the Weighted Random Sampling by Efraimidis and Spirakis
-# (https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-30162-4_478).
-#
-# @param a [Array or Integer] Array to choose from.
-# @param size [Integer] Number of elements to pick. Default is 1.
-# @param p [Array<Numeric>] Array of probabilities.
-# @return [Array] Array of items chosen.
-def random_choice(a, size: 1, p: nil)
-  array = a.class == Integer ? (0...a).to_a : a
-
-  if p
-    raise 'The number of probabilities do not match the size of the array.' \
-      if array.length != p.length
-    val_to_weight = array.zip(p).to_h
-    val_to_weight.max_by(size) { |_, weight| rand ** (1.0 / weight) }.map(&:first)
-  else
-    array.sample(size)
-  end
-end
