@@ -46,13 +46,23 @@ def rws_heap_pop(h)
   v
 end
 
-def random_weighted_sample_no_replacement(a, n, p)
+# Choose `size` (default: 1) numbers of elements from `a` with the given
+# probability without replacement.
+# `a` can either be an array or Integer in which case it will be treated as
+# `(0...a).to_a`.
+#
+# Implementation is based on the Weighted Random Sampling from this SO
+# (https://stackoverflow.com/a/2149533/4037).
+#
+# @param a [Array or Integer] Array to choose from.
+# @param size [Integer] Number of elements to pick. Default is 1.
+# @param p [Array<Numeric>] Array of probabilities.
+# @return [Array] Array of items chosen.
+def random_choice_without_replacement(a, size: 1, p:)
   array = a.class == Integer ? (0...a).to_a : a
   items = array.zip(p)
 
   heap = rws_heap(items)
 
-  n.times do
-    yield rws_heap_pop(heap)
-  end
+  size.times.map { rws_heap_pop(heap) }
 end

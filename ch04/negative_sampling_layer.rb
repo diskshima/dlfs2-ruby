@@ -66,9 +66,7 @@ class UnigramSampler
       p[target_idx] = 0
       p /= p.sum
       negative_sample[i, true] =
-        random_weighted_sample_no_replacement(@vocab_size,
-                                              @sample_size,
-                                              p) { |x| x }
+        random_choice_without_replacement(@vocab_size, size: @sample_size, p: p)
     end
 
     negative_sample
