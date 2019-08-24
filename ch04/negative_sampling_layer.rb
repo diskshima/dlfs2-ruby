@@ -1,5 +1,6 @@
 require 'numo/narray'
 require_relative '../common/layers'
+require_relative '../common/random_sampling'
 
 class EmbeddingDot
   attr_accessor :params, :grads
@@ -64,8 +65,9 @@ class UnigramSampler
       target_idx = target[i]
       p[target_idx] = 0
       p /= p.sum
-      negative_sample[i, true] =
-        random_choice(@vocab_size, size: @sample_size, p: p)
+      negative_sample[i, true] = RandomSampling.random_choice(
+        @vocab_size, size: @sample_size, p: p, replacement: false
+      )
     end
 
     negative_sample
