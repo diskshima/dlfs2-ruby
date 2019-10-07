@@ -7,7 +7,8 @@ Numo::Linalg::Loader.load_openblas '/usr/local/opt/openblas/lib'
 # Create corpus and word-ID hash.
 #
 # @param text [String] Text to process.
-# @return [Array<Numo::NArray, Hash<String, Integer>, Hash<Integer, String>>] Corpus (text converted to IDs), word to ID, ID to word.
+# @return [Array<Numo::NArray, Hash<String, Integer>, Hash<Integer, String>>]
+#         Corpus (text converted to IDs), word to ID, ID to word.
 def preprocess(text)
   text = text.downcase
              .gsub('.', ' .')
@@ -161,7 +162,8 @@ end
 # @param query [String] Query word.
 # @param word_to_id [Hash<String, Integer>] Word to ID.
 # @param id_to_word [Hash<Integer, String>] ID to word.
-# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent the word vector for the index.
+# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent
+#        the word vector for the index.
 # @param top [Integer] Count of words to return (sorted by similarity).
 def most_similar(query, word_to_id, id_to_word, word_matrix, top: 5)
   unless word_to_id.include?(query)
@@ -274,9 +276,10 @@ end
 # @param word_to_id [Hash<String, Integer>] Word to ID.
 # @param id_to_word [Hash<Integer, String>] ID to word.
 # @param word_matrix [Numo::UInt32] Word matrix each inner array will represent
-#   the word vector for the index.
+#        the word vector for the index.
 # @param top [Integer] Number of top possibilities to show.
-# @param answer [String] The word to compare how close the matrix is to the query.
+# @param answer [String] The word to compare how close the matrix is to the
+#        query.
 def analogy(a, b, c, word_to_id, id_to_word, word_matrix, top: 5, answer: nil)
   all_found = true
   [a, b, c].each do |word|
