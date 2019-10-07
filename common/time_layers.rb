@@ -186,7 +186,8 @@ class LSTM
 end
 
 class TimeLSTM
-  attr_accessor :params, :grads
+  attr_accessor :params, :grads, :dh
+
   def initialize(wx, wh, b, stateful: false)
     @params = [wx, wh, b]
     @grads = [Numo::SFloat.zeros(wx.shape), Numo::SFloat.zeros(wh.shape),

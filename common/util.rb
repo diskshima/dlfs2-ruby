@@ -329,3 +329,44 @@ def normalize(x)
     x / s
   end
 end
+
+# Evaluate Sequence2Sequence
+def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
+                 is_reverse: false)
+  correct = correct.flatten
+  start_id = correct[0]
+  correct = correct[0...-1]
+  guess = model.generate(question, start_id, correct.length)
+
+  question = question.flatten.map { |c| id_to_char[c] }.join('')
+  correct = correct.map { |c| id_to_char[c] }.join('')
+  guess = guess.map { |c| id_to_word[c] }.join('')
+
+  if verbose
+    if is_reverse
+      question = question.reverse
+    end
+
+    colors = { 'ok': '\033[92m', 'fail': '\033[91m', 'close': '\033[0m' }
+    print 'Q', question, "\n"
+    print 'T', correct, "\n"
+
+    is_windows = Gem::Platform.local.os =~ /mswin/
+
+    if correct == guess
+      mark = colors['ok'] + '☑' + colors['close']
+      if is_windows
+        mark = 'O'
+      end
+    else
+      mark = colors['fail'] + '☒' + colors['close']
+      if is_windows
+        mark = 'x'
+      end
+    end
+    puts mark + ' ' + guess
+    puts '---'
+  end
+
+  guess == correct ? 1 : 0
+end

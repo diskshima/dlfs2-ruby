@@ -35,7 +35,7 @@ class Encoder
   end
 
   def backward(dh)
-    dhs = Numo::SFloat.zeros(@hs)
+    dhs = Numo::SFloat.zeros(@hs.shape)
     dhs[true, -1, true] = dh
 
     dout = @lstm.backward(dhs)
@@ -45,6 +45,8 @@ class Encoder
 end
 
 class Decoder
+  attr_accessor :params, :grads
+
   def initialize(vocab_size, wordvec_size, hidden_size)
     v = vocab_size
     d = wordvec_size
@@ -55,7 +57,7 @@ class Decoder
     lstm_wx = rn.call(d, 4 * h) / Numo::SFloat::Math.sqrt(d)
     lstm_wh = rn.call(h, 4 * h) / Numo::SFloat::Math.sqrt(h)
     lstm_b = Numo::SFloat.zeros(4 * h)
-    affine_w = rn(h, v) / Numo::SFloat::Math.sqrt(h)
+    affine_w = rn.call(h, v) / Numo::SFloat::Math.sqrt(h)
     affine_b = Numo::SFloat.zeros(v)
 
     @embed = TimeEmbedding.new(embed_w)
@@ -64,7 +66,7 @@ class Decoder
 
     @params = []
     @grads = []
-    (@embed + @lstm + @affine).each do |layer|
+    [@embed, @lstm, @affine].each do |layer|
       @params += layer.params
       @grads += layer.grads
     end
@@ -82,7 +84,7 @@ class Decoder
   def backward(dscore)
     dout = @affine.backward(dscore)
     dout = @lstm.backward(dout)
-    dout = @embed.backward(dout)
+    _dout = @embed.backward(dout)
     dh = @lstm.dh
     dh
   end
@@ -107,6 +109,8 @@ class Decoder
 end
 
 class Seq2seq < BaseModel
+  attr_accessor :params, :grads
+
   def initialize(vocab_size, wordvec_size, hidden_size)
     v = vocab_size
     d = wordvec_size
