@@ -64,16 +64,21 @@ max_epoch.times do
                                 verbose: verbose, is_reverse: is_reverse)
   end
 
-  acc = correct_num / x_test.shape[0]
+  acc = correct_num.to_f / x_test.shape[0]
   acc_list.append(acc)
   printf("val acc %.3f%\n", (acc * 100))
 end
 
+x = (0...acc_list.length).to_a
 Gnuplot.open do |gp|
   Gnuplot::Plot.new(gp) do |plot|
     plot.xlabel('epochs')
     plot.ylabel('accuracy')
     plot.set(:yrange, '[0:1.0]')
-    plot.show
+
+    plot.data << Gnuplot::DataSet.new([x, acc_list]) do |ds|
+      ds.with = 'points pt 2'
+      ds.linewidth = 2
+    end
   end
 end

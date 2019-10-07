@@ -341,9 +341,9 @@ def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
   correct = correct[1..-1]
   guess = model.generate(question, start_id, correct.length)
 
-  question = question.to_a.map { |c| id_to_char[c] }.join('')
-  correct = correct.to_a.map { |c| id_to_char[c] }.join('')
-  guess = guess.to_a.map { |c| id_to_char[c] }.join('')
+  question = question.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
+  correct = correct.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
+  guess = guess.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
 
   if verbose
     if is_reverse
@@ -351,8 +351,8 @@ def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
     end
 
     colors = { ok: "\033[92m", fail: "\033[91m", close: "\033[0m" }
-    puts "Q#{question}"
-    puts "T#{correct}"
+    puts "Q: #{question}"
+    puts "T: #{correct}"
 
     is_windows = Gem::Platform.local.os =~ /mswin/
 
