@@ -10,7 +10,7 @@ require_relative './seq2seq'
 
 def each_batch(x)
   batches = x.to_a.map do |batch|
-    yield x[batch, true, true]
+    yield x[batch, true]
   end
 
   Numo::SFloat[*batches]
