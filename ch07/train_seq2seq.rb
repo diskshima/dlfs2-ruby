@@ -31,7 +31,7 @@ x_test, t_test = test_data
 
 char_to_id, id_to_char = seq.get_vocab
 
-is_reverse = false
+is_reverse = true
 
 if is_reverse
   x_train = each_batch(x_train) { |b| reverse_batch(b) }
