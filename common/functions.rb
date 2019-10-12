@@ -34,7 +34,7 @@ end
 # @param axis [Integer] axis.
 # @return [Array<Integer>] Indices with the maximum value.
 def argmax(x, axis: nil)
-  x.max_index(axis: axis) % x.shape[axis]
+  axis ? x.max_index(axis: axis) % x.shape[axis] : x.to_a.each_with_index.max[1]
 end
 
 def cross_entropy_error(y, t)
