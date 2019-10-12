@@ -7,6 +7,7 @@ require_relative '../common/optimizer'
 require_relative '../common/trainer'
 require_relative '../common/util'
 require_relative './seq2seq'
+require_relative './peeky_seq2seq'
 
 def each_batch(x)
   batches = x.to_a.map do |batch|
@@ -45,8 +46,8 @@ batch_size = 128
 max_epoch = 25
 max_grad = 5.0
 
-model = Seq2seq.new(vocab_size, wordvec_size, hidden_size)
-# model = PeekySeq2seq(vocab_size, wordvec_size, hidden_size)
+# model = Seq2seq.new(vocab_size, wordvec_size, hidden_size)
+model = PeekySeq2seq.new(vocab_size, wordvec_size, hidden_size)
 
 optimizer = Adam.new
 trainer = Trainer.new(model, optimizer)
