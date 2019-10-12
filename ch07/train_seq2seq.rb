@@ -35,7 +35,7 @@ is_reverse = true
 
 if is_reverse
   x_train = each_batch(x_train) { |b| reverse_batch(b) }
-  t_test = each_batch(x_test) { |b| reverse_batch(b) }
+  x_test = each_batch(x_test) { |b| reverse_batch(b) }
 end
 
 vocab_size = char_to_id.length
