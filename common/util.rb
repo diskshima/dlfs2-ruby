@@ -7,7 +7,8 @@ Numo::Linalg::Loader.load_openblas '/usr/local/opt/openblas/lib'
 # Create corpus and word-ID hash.
 #
 # @param text [String] Text to process.
-# @return [Array<Numo::NArray, Hash<String, Integer>, Hash<Integer, String>>] Corpus (text converted to IDs), word to ID, ID to word.
+# @return [Array<Numo::NArray, Hash<String, Integer>, Hash<Integer, String>>]
+#         Corpus (text converted to IDs), word to ID, ID to word.
 def preprocess(text)
   text = text.downcase
              .gsub('.', ' .')
@@ -161,7 +162,8 @@ end
 # @param query [String] Query word.
 # @param word_to_id [Hash<String, Integer>] Word to ID.
 # @param id_to_word [Hash<Integer, String>] ID to word.
-# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent the word vector for the index.
+# @param word_matrix [Numo::UInt32] Word matrix each inner array will represent
+#        the word vector for the index.
 # @param top [Integer] Count of words to return (sorted by similarity).
 def most_similar(query, word_to_id, id_to_word, word_matrix, top: 5)
   unless word_to_id.include?(query)
@@ -235,6 +237,12 @@ def clip_grads(grads, max_norm)
   grads.each { |grad| grad.inplace * rate } if rate < 1
 end
 
+# Evalulate perplexity.
+#
+# @param [BaseModel] Model to evaluate.
+# @param corpus Corpus.
+# @param batch_size [Integer] Batch size.
+# @param time_size [Integer]
 def eval_perplexity(model, corpus, batch_size: 10, time_size: 35)
   puts 'evaluating perplexity ...'
   corpus_size = corpus.length
@@ -274,9 +282,10 @@ end
 # @param word_to_id [Hash<String, Integer>] Word to ID.
 # @param id_to_word [Hash<Integer, String>] ID to word.
 # @param word_matrix [Numo::UInt32] Word matrix each inner array will represent
-#   the word vector for the index.
+#        the word vector for the index.
 # @param top [Integer] Number of top possibilities to show.
-# @param answer [String] The word to compare how close the matrix is to the query.
+# @param answer [String] The word to compare how close the matrix is to the
+#        query.
 def analogy(a, b, c, word_to_id, id_to_word, word_matrix, top: 5, answer: nil)
   all_found = true
   [a, b, c].each do |word|
@@ -328,4 +337,54 @@ def normalize(x)
     s = Numo::SFloat::Math.sqrt((x**2).sum)
     x / s
   end
+end
+
+# Evaluate Sequence to sequence model.
+#
+# @param model [Seq2seq] Sequence to sequence model.
+# @param question [Array<Integer>] Array of question character IDs.
+# @param correct [Array<Integer>] Target value.
+# @param id_to_char [Hash<Integer, String>>] ID to character hash.
+# @param verbose [Boolean] Verbose mode. If true, will print result.
+# @param is_reverse [Boolean] Reverse mode. If true, will treat the
+#        questions as a reversed string.
+# @result [Integer] 1 if guess is correct, 0 otherwise.
+def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
+                 is_reverse: false)
+  correct = correct.flatten
+  start_id = correct[0]
+  correct = correct[1..-1]
+  guess = model.generate(question, start_id, correct.length)
+
+  question = question.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
+  correct = correct.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
+  guess = guess.flatten.to_a.map { |c| id_to_char[c.to_i] }.join('')
+
+  if verbose
+    if is_reverse
+      question = question.reverse
+    end
+
+    colors = { ok: "\033[92m", fail: "\033[91m", close: "\033[0m" }
+    puts "Q: #{question}"
+    puts "T: #{correct}"
+
+    is_windows = Gem::Platform.local.os =~ /mswin/
+
+    if correct == guess
+      mark = colors[:ok] + '☑' + colors[:close]
+      if is_windows
+        mark = 'O'
+      end
+    else
+      mark = colors[:fail] + '☒' + colors[:close]
+      if is_windows
+        mark = 'x'
+      end
+    end
+    puts mark + ' ' + guess
+    puts '---'
+  end
+
+  guess == correct ? 1 : 0
 end

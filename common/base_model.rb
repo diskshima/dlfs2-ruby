@@ -28,9 +28,9 @@ class BaseModel
 
   def load_params(file_name = nil)
     fn = file_name || self.class.name + '.bin'
-    fn = fn.replace('/', File::SEPARATOR) if fn.include?('/')
+    fn = fn.gsub('/', File::SEPARATOR) if fn.include?('/')
 
-    raise IOError, "No file: #{fn}" if File.exist?(fn)
+    raise IOError, "No file: #{fn}" unless File.exist?(fn)
 
     params = nil
     File.open(fn, 'rb') do |f|
