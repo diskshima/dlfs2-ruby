@@ -237,6 +237,12 @@ def clip_grads(grads, max_norm)
   grads.each { |grad| grad.inplace * rate } if rate < 1
 end
 
+# Evalulate perplexity.
+#
+# @param [BaseModel] Model to evaluate.
+# @param corpus Corpus.
+# @param batch_size [Integer] Batch size.
+# @param time_size [Integer]
 def eval_perplexity(model, corpus, batch_size: 10, time_size: 35)
   puts 'evaluating perplexity ...'
   corpus_size = corpus.length
@@ -333,7 +339,16 @@ def normalize(x)
   end
 end
 
-# Evaluate Sequence2Sequence
+# Evaluate Sequence to sequence model.
+#
+# @param model [Seq2seq] Sequence to sequence model.
+# @param question [Array<Integer>] Array of question character IDs.
+# @param correct [Array<Integer>] Target value.
+# @param id_to_char [Hash<Integer, String>>] ID to character hash.
+# @param verbose [Boolean] Verbose mode. If true, will print result.
+# @param is_reverse [Boolean] Reverse mode. If true, will treat the
+#        questions as a reversed string.
+# @result [Integer] 1 if guess is correct, 0 otherwise.
 def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
                  is_reverse: false)
   correct = correct.flatten

@@ -30,13 +30,18 @@ end
 
 # Returns the indices of the maximum values along an axis.
 #
-# @param x [Numo::NArray] Matrix.
+# @param x [Numo::NArray, Array] Matrix.
 # @param axis [Integer] axis.
 # @return [Array<Integer>] Indices with the maximum value.
 def argmax(x, axis: nil)
   axis ? x.max_index(axis: axis) % x.shape[axis] : x.to_a.each_with_index.max[1]
 end
 
+# Returns the cross entropy error.
+#
+# @param y [Numo::NArray]
+# @param t [Numo::NArray]
+# @return [Numo::NArray] Cross entropy error of y and t.
 def cross_entropy_error(y, t)
   if y.ndim == 1
     t = t.reshape(1, t.size)
@@ -55,12 +60,13 @@ end
 
 # Converts `t`-th class notation to its index in a Numo::NArray.
 #
-# This was necessary as Numo::NArray does not support notations like `x[[0,1], t]`
-# to extract t-th item in the 1st and 2nd row of a matrix
+# This was necessary as Numo::NArray does not support notations like
+# `x[[0,1], t]` to extract t-th item in the 1st and 2nd row of a matrix
 # `x[to_full_index(t, x.shape[0]]` will be equal to Python's numpy notation of
 # `x[x.shape[0], t]`.
 #
-# @param t [Array<Integer>] Vector of denoting each index of the corresponding class.
+# @param t [Array<Integer>] Vector of denoting each index of the corresponding
+# class.
 # @param cls_count [Integer] Number of elements each row has.
 # @return [Array<Integer>] Index into a Numo::NArray.
 def to_full_index(t, cls_count)
@@ -82,7 +88,8 @@ def get_at_dim_index(x, dim_no, idxs)
   x[*ind]
 end
 
-# Return the full indexes for the `idxs` in the `dim_no` dimention of the matrix `x`.
+# Return the full indexes for the `idxs` in the `dim_no` dimention of the matrix
+# `x`.
 #
 # @param x [Numo::NArray] Matrix.
 # @param dim_no [Integer] Dimension number.
