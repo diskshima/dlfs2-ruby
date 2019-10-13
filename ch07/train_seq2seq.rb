@@ -47,8 +47,8 @@ max_epoch.times do
 
   correct_num = 0
   x_test.shape[0].times do |i|
-    question = Numo::SFloat[x_test[i, true]]
-    correct = Numo::SFloat[t_test[i, true]]
+    question = x_test[i, true].expand_dims(0)
+    correct = t_test[i, true].expand_dims(0)
     verbose = i < 10
     correct_num += eval_seq2seq(model, question, correct, id_to_char,
                                 verbose: verbose, is_reverse: is_reverse)
