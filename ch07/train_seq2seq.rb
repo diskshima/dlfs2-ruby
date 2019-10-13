@@ -8,20 +8,9 @@ require_relative '../common/trainer'
 require_relative '../common/util'
 require_relative './seq2seq'
 
-def each_batch(x)
-  batches = x.to_a.map do |batch|
-    yield x[batch, true]
-  end
-
-  Numo::SFloat[*batches]
-end
-
-def reverse_batch(batch)
-  row_count = batch.shape[0]
-
-  (row_count - 1).downto(0).map do |row|
-    batch[row]
-  end
+def reverse_each_row(x)
+  rows = x.to_a.map(&:reverse)
+  Numo::SFloat[*rows]
 end
 
 seq = Sequence.new
@@ -34,8 +23,8 @@ char_to_id, id_to_char = seq.get_vocab
 is_reverse = true
 
 if is_reverse
-  x_train = each_batch(x_train) { |b| reverse_batch(b) }
-  x_test = each_batch(x_test) { |b| reverse_batch(b) }
+  x_train = reverse_each_row(x_train)
+  x_test = reverse_each_row(x_test)
 end
 
 vocab_size = char_to_id.length
