@@ -5,6 +5,7 @@ require_relative '../common/functions'
 require_relative '../common/time_layers'
 require_relative './seq2seq'
 
+# Peeky Decoder
 class PeekyDecoder
   attr_accessor :params, :grads
 
@@ -40,7 +41,6 @@ class PeekyDecoder
     @lstm.set_state(h_in)
 
     out = @embed.forward(xs)
-    # TODO Assumes h's shape is (1, n) is `[[1,2,3,4]]`
     hs = h_in.repeat(t, axis: 0).reshape(n, t, h)
     out = hs.concatenate(out, axis: 2)
 
@@ -93,6 +93,7 @@ class PeekyDecoder
   end
 end
 
+# Peeky Sequence-to-Sequence Model
 class PeekySeq2seq < Seq2seq
   attr_accessor :params, :grads
 
