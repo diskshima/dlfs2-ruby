@@ -424,3 +424,37 @@ class TimeDropout
     dout * @mask
   end
 end
+
+# TimeBiLSTM
+class TimeBiLSTM
+  attr_accessor :params, :grads
+
+  def initialize(wx1, wh1, b1, wx2, wh2, b2, stateful: false)
+    @forward_lstm = TimeLSTM.new(wx1, wh1, b1, stateful)
+    @backward_lstm = TimeLSTM.new(wx2, wh2, b2, stateful)
+    @params = @forward_lstm.params + @backward_lstm.params
+    @grads = @forward_lstm.grads + @backward_lstm.grads
+  end
+
+  def forward(xs)
+    o1 = @forward_lstm.forward(xs)
+    o2 = @backward_lstm.forward(xs[true, true, (-1..0).step(-1)])
+    o2 = o2[true, true, (-1..0).step(-1)]
+
+    out = o1.concatenate(o2, axis: 2)
+    out
+  end
+
+  def backward(dhs)
+    h = dhs.shape[2] / 2
+    do1 = dhs[true, true, 0...h]
+    do2 = dhs[true, true, h..-1]
+
+    dxs1 = @forward_lstm.backward(do1)
+    do2 = do2[true, true, (-1..0).step(-1)]
+    dxs2 = @backward_lstm.backward(do2)
+    dxs2 = dxs2[true, true, (-1..0).step(-1)]
+    dxs = dxs1 + dxs2
+    dxs
+  end
+end
