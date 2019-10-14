@@ -75,6 +75,8 @@ end
 
 # Attention layer
 class Attention
+  attr_accessor :params, :grads
+
   def initialize
     @params = []
     @grads = []
@@ -101,6 +103,8 @@ end
 
 # Attention layer for multiple blocks.
 class TimeAttention
+  attr_accessor :params, :grads, :layers, :attention_weights
+
   def initialize
     @params = []
     @grads = []
