@@ -102,7 +102,33 @@ class SigmoidWithLoss
   end
 end
 
+# Softmax layer
+class Softmax
+  attr_accessor :params, :grads
+
+  def initialize
+    @params = []
+    @grads = []
+    @out = nil
+  end
+
+  def forward(x)
+    @out = softmax(x)
+    @out
+  end
+
+  def backward(dout)
+    dx = @out * dout
+    sumdx = dx.sum(axis: 1, keepdims: true)
+    dx -= @out * sumdx
+    dx
+  end
+end
+
+# Softmax + cross entropy loss layer
 class SoftmaxWithLoss
+  attr_accessor :params, :grads
+
   def initialize
     @params = []
     @grads = []
