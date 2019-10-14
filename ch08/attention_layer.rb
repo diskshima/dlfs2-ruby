@@ -75,7 +75,7 @@ end
 
 # Attention layer
 class Attention
-  attr_accessor :params, :grads
+  attr_accessor :params, :grads, :attention_weight
 
   def initialize
     @params = []

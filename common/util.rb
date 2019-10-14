@@ -348,7 +348,7 @@ end
 # @param verbose [Boolean] Verbose mode. If true, will print result.
 # @param is_reverse [Boolean] Reverse mode. If true, will treat the
 #        questions as a reversed string.
-# @result [Integer] 1 if guess is correct, 0 otherwise.
+# @return [Integer] 1 if guess is correct, 0 otherwise.
 def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
                  is_reverse: false)
   correct = correct.flatten
@@ -387,4 +387,13 @@ def eval_seq2seq(model, question, correct, id_to_char, verbose: false,
   end
 
   guess == correct ? 1 : 0
+end
+
+# Reverse each row of the 2-dimension matrix.
+#
+# @param x [Numo::SFloat] 2-dimension matrix.
+# @return [Numo::SFloat] The 2-dimension matrix with each row reversed.
+def reverse_each_row(x)
+  rows = x.to_a.map(&:reverse)
+  Numo::SFloat[*rows]
 end

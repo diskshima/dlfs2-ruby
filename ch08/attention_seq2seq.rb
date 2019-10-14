@@ -51,7 +51,7 @@ class AttentionDecoder
   end
 
   def forward(xs, enc_hs)
-    h = enc_hs[true, -1]
+    h = enc_hs[true, -1, true]
     @lstm.set_state(h)
 
     out = @embed.forward(xs)
@@ -74,7 +74,7 @@ class AttentionDecoder
     ddec_hs = ddec_hs0 + ddec_hs1
     dout = @lstm.backward(ddec_hs)
     dh = @lstm.dh
-    denc_hs[true, -1] += dh
+    denc_hs[true, -1, true] += dh
     @embed.backward(dout)
 
     denc_hs
@@ -83,7 +83,7 @@ class AttentionDecoder
   def generate(enc_hs, start_id, sample_size)
     sampled = []
     sample_id = start_id
-    h = enc_hs[true, -1]
+    h = enc_hs[true, -1, true]
     @lstm.set_state(h)
 
     sample_size.times do
